@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="src" path="/Joystick"/>
+	<classpathentry kind="lib" path="/media/harold/DataLPC/Libraries/comProt.jar"/>
+	<classpathentry kind="lib" path="/media/harold/DataLPC/Libraries/serialCom.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
