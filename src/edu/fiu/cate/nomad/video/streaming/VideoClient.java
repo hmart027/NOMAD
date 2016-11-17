@@ -15,10 +15,10 @@ import com.xuggle.mediatool.ToolFactory;
 import com.xuggle.mediatool.event.IVideoPictureEvent;
 import com.xuggle.xuggler.io.XugglerIO;
 
-public class Client {
+public class VideoClient {
 	IViewer v = null;
 
-	public Client(){
+	public VideoClient(){
 		try {
 			Socket s = new Socket("localhost", 5050);
 			
@@ -37,7 +37,7 @@ public class Client {
 	}
 	
 	public static void main(String[] args) {
-		new Client();
+		new VideoClient();
 	}
 	
 	private class ImageSnapListener extends MediaListenerAdapter {

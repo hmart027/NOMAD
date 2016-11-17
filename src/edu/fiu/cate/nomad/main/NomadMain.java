@@ -8,6 +8,7 @@ import com.protocol.Protocol;
 import comm.serial.Comm;
 import edu.fiu.cate.nomad.control.Base;
 import edu.fiu.cate.nomad.gui.NomadGUI;
+import edu.fiu.cate.nomad.video.streaming.VideoServer;
 
 public class NomadMain {
 
@@ -18,6 +19,7 @@ public class NomadMain {
 //		for(byte b: Protocol.pack(new byte[]{10, 1, 2, 3, 4, 5, 6}))
 //			System.out.print(Integer.toHexString(b&0x0FF)+", ");
 		new NomadGUI();
+		new VideoServer();
 		
 //		if(System.getProperty("os.name").toLowerCase().equals("linux")){
 ////			NOMAD_PORT = "/dev/ttyUSB0";

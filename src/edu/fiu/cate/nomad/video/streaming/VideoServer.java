@@ -1,8 +1,6 @@
 package edu.fiu.cate.nomad.video.streaming;
 
 import image.tools.ITools;
-import image.tools.IViewer;
-import img.ImageManipulation;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -32,7 +30,9 @@ import com.xuggle.xuggler.io.XugglerIO;
 import com.xuggle.xuggler.video.ConverterFactory;
 import com.xuggle.xuggler.video.IConverter;
 
-public class Server {
+import edu.fiu.cate.nomad.gui.binocular.StereoView;
+
+public class VideoServer {
 	
 	OutputStream outputStream;
 	boolean rCamLoaded, lCamLoaded;
@@ -60,7 +60,7 @@ public class Server {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
 	
-	Server(){	
+	public VideoServer(){	
 //		try {
 //			outputStream = new DataOutputStream(new FileOutputStream("/home/harold/Videos/mv.h264"));
 //		} catch (IOException e) {
@@ -202,11 +202,6 @@ public class Server {
 		return out;
 	}
 	
-	public static void main(String[] args) {
-		new Server();
-//		new StereoView();
-	}
-
 	private class ClientListener extends Thread{
 		public volatile boolean running;
 		Socket client;

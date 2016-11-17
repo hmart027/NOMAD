@@ -1,4 +1,4 @@
-package edu.fiu.cate.nomad.video.streaming;
+package edu.fiu.cate.nomad.gui.binocular;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -11,8 +11,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-import edu.fiu.cate.nomad.gui.binocular.CameraMenu;
-import edu.fiu.cate.nomad.gui.binocular.ImagePanel;
 import java.awt.FlowLayout;
 
 public class StereoView extends JFrame{

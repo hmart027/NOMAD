@@ -3,10 +3,7 @@ package edu.fiu.cate.nomad.video.streaming;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
-import image.tools.ITools;
 import image.tools.IViewer;
-import img.ImageManipulation;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
