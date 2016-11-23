@@ -18,7 +18,8 @@ public class NomadMain {
 	NomadMain(){
 //		for(byte b: Protocol.pack(new byte[]{10, 1, 2, 3, 4, 5, 6}))
 //			System.out.print(Integer.toHexString(b&0x0FF)+", ");
-		new NomadGUI();
+		
+//		new NomadGUI();
 		new VideoServer();
 		
 //		if(System.getProperty("os.name").toLowerCase().equals("linux")){

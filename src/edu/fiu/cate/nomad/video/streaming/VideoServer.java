@@ -34,6 +34,9 @@ import edu.fiu.cate.nomad.gui.binocular.StereoView;
 
 public class VideoServer {
 	
+	int leftCameraIndex = 0;
+	int rightCameraIndex = 1;
+	
 	OutputStream outputStream;
 	boolean rCamLoaded, lCamLoaded;
 	VideoCapture camera_left;
@@ -71,7 +74,7 @@ public class VideoServer {
 		
 		new ClientListener().start();
 				
-		camera_left = new VideoCapture(0);
+		camera_left = new VideoCapture(leftCameraIndex);
 		frame_left = new Mat();
 		if (!camera_left.isOpened()) {
 			System.out.println("Left Camera Error");
@@ -79,7 +82,7 @@ public class VideoServer {
 			System.out.println("Left Camera OK");
 			lCamLoaded = true;
 		}
-		camera_right = new VideoCapture(1);
+		camera_right = new VideoCapture(rightCameraIndex);
 		frame_right = new Mat();
 		if (!camera_right.isOpened()) {
 			System.out.println("Right Camera Error");
