@@ -10,17 +10,19 @@ import edu.fiu.cate.nomad.control.Base;
 import edu.fiu.cate.nomad.gui.NomadGUI;
 import edu.fiu.cate.nomad.video.streaming.VideoServer;
 
+@SuppressWarnings("unused")
 public class NomadMain {
 
 	private static String NOMAD_PORT = "COM1";
 	private static int    NOMAD_BAUD = 9600;
 
 	NomadMain(){
-//		for(byte b: Protocol.pack(new byte[]{10, 1, 2, 3, 4, 5, 6}))
-//			System.out.print(Integer.toHexString(b&0x0FF)+", ");
-		new NomadGUI();
+//		new NomadGUI();
 		new VideoServer();
 		
+//		for(byte b: Protocol.pack(new byte[]{10, 1, 2, 3, 4, 5, 6}))
+//			System.out.print(Integer.toHexString(b&0x0FF)+", ");
+				
 //		if(System.getProperty("os.name").toLowerCase().equals("linux")){
 ////			NOMAD_PORT = "/dev/ttyUSB0";
 //			NOMAD_PORT = "/dev/ttyS0";
