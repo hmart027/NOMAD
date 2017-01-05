@@ -11,74 +11,103 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 
-public class JavaSoundAPIMain {
+public class SoundTrials {
 	
-	public static PlotterWindow plotter;
+	public PlotterWindow plotter;
 	
-	JavaSoundAPIMain(){
+	SoundTrials(){
+		
+		listCameraInputDevices();
 		
 		plotter = new PlotterWindow();
-		
-		byte[] frame = null;
-		Complex[] fft = null;
-		double cSample = 0, lSample = 0, lY = 0;
-		double dx = 0;
+		PlotterWindow.pane1.setMaxY(10000);
+		PlotterWindow.pane1.setMinY(-10000);
+		PlotterWindow.pane1.setdeltaY(1000);
+		PlotterWindow.pane1.setMaxX(5);
+		PlotterWindow.pane1.setMinX(0);
+		PlotterWindow.pane1.setdeltaX((5-0)*0.1);
 
-		AudioFormat format = new AudioFormat(22000, 16, 1, true, true);
-		int frameSize = format.getFrameSize();
+		PlotterWindow.pane2.setMaxY(10000);
+		PlotterWindow.pane2.setMinY(-10000);
+		PlotterWindow.pane2.setdeltaY(1000);
+		PlotterWindow.pane2.setMaxX(5);
+		PlotterWindow.pane2.setMinX(0);
+		PlotterWindow.pane2.setdeltaX((5-0)*0.1);
 		
-//		PlotterWindow.pane1.autoscale(false, false);
-		
+		PSEyeAudio[] cams = PSEyeAudio.getAvailablePSEye();
 		try {
-			TargetDataLine microphone = AudioSystem.getTargetDataLine(format);
-			microphone.open();
-			dx = 1d/22000.0;
-			frame = new byte[microphone.getBufferSize()/10];
-			fft = new Complex[16384];
-			int fftCount = 0;
-			System.out.println(fft.length);
-			microphone.start();
+			DataLine cam1 = cams[0].getTargetDataLine();
+			cam1.addLineListener(new Mic1Listener());
+			cam1.open();
 			
-			double fStep = 22000.0/(double)fft.length;
-				
-			while(microphone.isOpen()){
-				if(microphone.available() >= frame.length){
-					int r = microphone.read(frame, 0, frame.length);
-					if(r>0){
-						for(int c = 0; c<r; c+=frameSize){
-							int data = ((int)frame[c])<<8 | (frame[c+1] & 0x0FF);
-							fft[fftCount++] = new Complex(data, 0);
-							if(fftCount == fft.length){
-								fftCount = 0;
-								fft = FFT.fft(fft);
-								PlotterWindow.pane2.clearLines();
-								for(int x = 0; x<fft.length/2; x++){
-									PlotterWindow.pane2.drawLine(x*fStep, 0, x*fStep, fft[x].mod()/(double)fft.length);
-								}
-//								PlotterWindow.pane2.autoscale(true, false);
-							}
-							PlotterWindow.pane1.drawLine(lSample, lY, cSample, data);
-							double maxX = PlotterWindow.pane1.getMaxX();
-							double minX = PlotterWindow.pane1.getMinX();
-							double dX = maxX-minX;
-							if(maxX<=cSample){
-								PlotterWindow.pane1.setMaxX(maxX+dX*0.1);
-								PlotterWindow.pane1.setMinX(minX+dX*0.1);
-							}
-							lSample = cSample;
-							cSample += dx;
-							lY = data;
-						}
-					}
-				}
-			}
+			DataLine cam2 = cams[1].getTargetDataLine();
+			cam2.addLineListener(new Mic2Listener());
+			cam2.open();
 			
-		} catch (LineUnavailableException e) {
-			e.printStackTrace();
+		} catch (LineUnavailableException e1) {
+			e1.printStackTrace();
 		}
+				
+//		byte[] frame = null;
+//		Complex[] fft = null;
+//		double cSample = 0, lSample = 0, lY = 0;
+//		double dx = 0;
+//
+//		AudioFormat format = new AudioFormat(22000, 16, 1, true, true);
+//		int frameSize = format.getFrameSize();
+//		
+////		PlotterWindow.pane1.autoscale(false, false);
+//		
+//		try {
+//			TargetDataLine microphone = AudioSystem.getTargetDataLine(format);
+//			microphone.open();
+//			dx = 1d/22000.0;
+//			frame = new byte[microphone.getBufferSize()/10];
+//			fft = new Complex[16384];
+//			int fftCount = 0;
+//			System.out.println(fft.length);
+//			microphone.start();
+//			
+//			double fStep = 22000.0/(double)fft.length;
+//				
+//			while(microphone.isOpen()){
+//				if(microphone.available() >= frame.length){
+//					int r = microphone.read(frame, 0, frame.length);
+//					if(r>0){
+//						for(int c = 0; c<r; c+=frameSize){
+//							int data = ((int)frame[c])<<8 | (frame[c+1] & 0x0FF);
+//							fft[fftCount++] = new Complex(data, 0);
+//							if(fftCount == fft.length){
+//								fftCount = 0;
+//								fft = FFT.fft(fft);
+//								PlotterWindow.pane2.clearLines();
+//								for(int x = 0; x<fft.length/2; x++){
+//									PlotterWindow.pane2.drawLine(x*fStep, 0, x*fStep, fft[x].mod()/(double)fft.length);
+//								}
+////								PlotterWindow.pane2.autoscale(true, false);
+//							}
+//							PlotterWindow.pane1.drawLine(lSample, lY, cSample, data);
+//							double maxX = PlotterWindow.pane1.getMaxX();
+//							double minX = PlotterWindow.pane1.getMinX();
+//							double dX = maxX-minX;
+//							if(maxX<=cSample){
+//								PlotterWindow.pane1.setMaxX(maxX+dX*0.1);
+//								PlotterWindow.pane1.setMinX(minX+dX*0.1);
+//							}
+//							lSample = cSample;
+//							cSample += dx;
+//							lY = data;
+//						}
+//					}
+//				}
+//			}
+//			
+//		} catch (LineUnavailableException e) {
+//			e.printStackTrace();
+//		}
 	}
 	
-	public static void listInputDevices(){
+	public void listInputDevices(){
 		Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
 		System.out.println("Mixers: ");
 		for (Mixer.Info info: mixerInfos){
@@ -107,7 +136,7 @@ public class JavaSoundAPIMain {
 		 }
 	}
 	
-	public static void listCameraInputDevices(){
+	public void listCameraInputDevices(){
 		Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
 		System.out.println("Mixers: ");
 		for (Mixer.Info info: mixerInfos){
@@ -142,7 +171,7 @@ public class JavaSoundAPIMain {
 		 }
 	}
 	
-	public static DataLine getCameraInputDevices(){
+	public DataLine getCameraInputDevices(){
 		Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
 		for (Mixer.Info info: mixerInfos){
 			// Get only mixes that contain the string "camera" in their names
@@ -162,7 +191,7 @@ public class JavaSoundAPIMain {
 		return null;
 	}
 
-	public static void getMixerInfo(){
+	public void getMixerInfo(){
 		for(Mixer.Info i: AudioSystem.getMixerInfo()){
 			System.out.println(i.getName());
 			System.out.println(i.getDescription());
@@ -170,64 +199,7 @@ public class JavaSoundAPIMain {
 			System.out.println();		
 		}
 	}
-	
-	public static void main(String[] args) {
 		
-		listCameraInputDevices();
-		
-		plotter = new PlotterWindow();
-		PlotterWindow.pane1.setMaxY(10000);
-		PlotterWindow.pane1.setMinY(-10000);
-		PlotterWindow.pane1.setdeltaY(1000);
-		PlotterWindow.pane1.setMaxX(5);
-		PlotterWindow.pane1.setMinX(0);
-		PlotterWindow.pane1.setdeltaX((5-0)*0.1);
-
-		PlotterWindow.pane2.setMaxY(10000);
-		PlotterWindow.pane2.setMinY(-10000);
-		PlotterWindow.pane2.setdeltaY(1000);
-		PlotterWindow.pane2.setMaxX(5);
-		PlotterWindow.pane2.setMinX(0);
-		PlotterWindow.pane2.setdeltaX((5-0)*0.1);
-		
-		PSEyeAudio[] cams = PSEyeAudio.getAvailablePSEye();
-		try {
-			DataLine cam1 = cams[0].getTargetDataLine();
-			cam1.addLineListener(new Mic1Listener());
-			cam1.open();
-			
-			DataLine cam2 = cams[1].getTargetDataLine();
-			cam2.addLineListener(new Mic2Listener());
-			cam2.open();
-			
-		} catch (LineUnavailableException e1) {
-			e1.printStackTrace();
-		}
-		
-//		new JavaSoundAPIMain();
-		
-//		double f = 400;
-//		double f1 = 200000;
-//
-//		Complex[] fft = new Complex[4096];
-//
-//		int t = 0;
-//		for (int i = 0; i < fft.length; i++) {
-//			fft[i] = new Complex(Math.sin(2 * Math.PI * f * t / 10000.0), 0);
-//			t++;
-//		}
-//
-//		fft = FFT.fft(fft);
-//		PlotterWindow.pane2.clearLines();
-//		for (int i = 0; i < fft.length / 2; i++) {
-//			double x = i / (double) fft.length * 10000;
-//			PlotterWindow.pane2.drawLine(x, 0, x, fft[i].mod());
-//			if (fft[i].mod() > 100)
-//				System.out.println(i + ": " + fft[i].mod());
-//		}
-//		PlotterWindow.pane2.repaint();
-	}
-	
 	public static class Mic1Listener extends Thread implements LineListener{
 		
 		private TargetDataLine microphone;
