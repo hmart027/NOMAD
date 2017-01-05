@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="src" path="/Joystick"/>
-	<classpathentry kind="lib" path="/media/harold/DataLPC/Libraries/comProt.jar"/>
-	<classpathentry kind="lib" path="/media/harold/DataLPC/Libraries/serialCom.jar"/>
-	<classpathentry kind="lib" path="/media/harold/DataLPC/Libraries/ITools.jar"/>
-	<classpathentry kind="lib" path="/media/harold/DataLPC/Libraries/slf4j-1.7.21.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/OpenCV3.1.0"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/xuggle5.4.linux"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ComunicationProtocol"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Image Tools"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SerialCommunication"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
