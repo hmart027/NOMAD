@@ -7,6 +7,7 @@ import edu.cmu.sphinx.api.LiveSpeechRecognizer;
 import edu.cmu.sphinx.api.SpeechResult;
 import edu.cmu.sphinx.decoder.adaptation.Stats;
 import edu.cmu.sphinx.decoder.adaptation.Transform;
+import edu.fiu.cate.nomad.audio.PSEyeAudio;
 
 public class TranscriberDemo {     
 	
@@ -22,7 +23,8 @@ public class TranscriberDemo {
 				.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
 
 		try {
-			LiveSpeechRecognizer recognizer = new LiveSpeechRecognizer(configuration);
+			PSEyeAudio[] cams = PSEyeAudio.getAvailablePSEye();
+			LiveSpeechRecognizer recognizer = new LiveSpeechRecognizer(configuration, cams[0].getMixer().getMixerInfo());
 
 			// Start recognition process pruning previously cached data.
 			Stats stats = recognizer.createStats(1);
