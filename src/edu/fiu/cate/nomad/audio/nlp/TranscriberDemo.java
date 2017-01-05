@@ -21,10 +21,14 @@ public class TranscriberDemo {
 				.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
 		configuration
 				.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
+		
+		System.out.println("Configuration Loaded.....");
 
 		try {
 			PSEyeAudio[] cams = PSEyeAudio.getAvailablePSEye();
 			LiveSpeechRecognizer recognizer = new LiveSpeechRecognizer(configuration, cams[0].getMixer().getMixerInfo());
+
+			System.out.println("Recognizer Created.....");
 
 			// Start recognition process pruning previously cached data.
 			Stats stats = recognizer.createStats(1);
