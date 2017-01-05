@@ -8,8 +8,6 @@ import com.protocol.Protocol;
 import comm.serial.Comm;
 import edu.fiu.cate.nomad.audio.SoundTrials;
 import edu.fiu.cate.nomad.audio.nlp.TranscriberDemo;
-import edu.fiu.cate.nomad.control.Base;
-import edu.fiu.cate.nomad.gui.NomadGUI;
 import edu.fiu.cate.nomad.video.streaming.VideoServer;
 
 @SuppressWarnings("unused")
