@@ -5,7 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/OpenCV3.1.0"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/xuggle5.4.linux"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ComunicationProtocol"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Image Tools"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ImageTools"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SerialCommunication"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
