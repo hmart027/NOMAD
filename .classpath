@@ -8,5 +8,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ImageTools"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SerialCommunication"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Plotter"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/DSPTools"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
