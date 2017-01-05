@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import com.protocol.Protocol;
 
 import comm.serial.Comm;
+import edu.fiu.cate.nomad.audio.SoundTrials;
 import edu.fiu.cate.nomad.control.Base;
 import edu.fiu.cate.nomad.gui.NomadGUI;
 import edu.fiu.cate.nomad.video.streaming.VideoServer;
@@ -18,7 +19,8 @@ public class NomadMain {
 
 	NomadMain(){
 //		new NomadGUI();
-		new VideoServer();
+//		new VideoServer();
+		new SoundTrials();
 		
 //		for(byte b: Protocol.pack(new byte[]{10, 1, 2, 3, 4, 5, 6}))
 //			System.out.print(Integer.toHexString(b&0x0FF)+", ");

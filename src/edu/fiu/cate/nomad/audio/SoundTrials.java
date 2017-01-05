@@ -22,7 +22,7 @@ public class SoundTrials {
 	
 	public PlotterWindow plotter;
 	
-	SoundTrials(){
+	public SoundTrials(){
 		
 		listCameraInputDevices();
 		
