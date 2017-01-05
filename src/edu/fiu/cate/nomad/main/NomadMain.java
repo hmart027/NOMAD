@@ -7,6 +7,7 @@ import com.protocol.Protocol;
 
 import comm.serial.Comm;
 import edu.fiu.cate.nomad.audio.SoundTrials;
+import edu.fiu.cate.nomad.audio.nlp.TranscriberDemo;
 import edu.fiu.cate.nomad.control.Base;
 import edu.fiu.cate.nomad.gui.NomadGUI;
 import edu.fiu.cate.nomad.video.streaming.VideoServer;
@@ -20,7 +21,8 @@ public class NomadMain {
 	NomadMain(){
 //		new NomadGUI();
 //		new VideoServer();
-		new SoundTrials();
+//		new SoundTrials();
+		new TranscriberDemo();
 		
 //		for(byte b: Protocol.pack(new byte[]{10, 1, 2, 3, 4, 5, 6}))
 //			System.out.print(Integer.toHexString(b&0x0FF)+", ");
