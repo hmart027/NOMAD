@@ -1,4 +1,7 @@
 package edu.fiu.cate.nomad.audio;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
 import javax.dsp.tools.Complex;
 import javax.dsp.tools.FFT;
 import javax.sound.sampled.AudioFormat;
@@ -10,6 +13,10 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
+import javax.swing.JPanel;
+
+import main.Window;
+import plotter.GraphPanel;
 
 public class SoundTrials {
 	
@@ -20,19 +27,19 @@ public class SoundTrials {
 		listCameraInputDevices();
 		
 		plotter = new PlotterWindow();
-		PlotterWindow.pane1.setMaxY(10000);
-		PlotterWindow.pane1.setMinY(-10000);
-		PlotterWindow.pane1.setdeltaY(1000);
-		PlotterWindow.pane1.setMaxX(5);
-		PlotterWindow.pane1.setMinX(0);
-		PlotterWindow.pane1.setdeltaX((5-0)*0.1);
+		plotter.pane1.setMaxY(10000);
+		plotter.pane1.setMinY(-10000);
+		plotter.pane1.setdeltaY(1000);
+		plotter.pane1.setMaxX(5);
+		plotter.pane1.setMinX(0);
+		plotter.pane1.setdeltaX((5-0)*0.1);
 
-		PlotterWindow.pane2.setMaxY(10000);
-		PlotterWindow.pane2.setMinY(-10000);
-		PlotterWindow.pane2.setdeltaY(1000);
-		PlotterWindow.pane2.setMaxX(5);
-		PlotterWindow.pane2.setMinX(0);
-		PlotterWindow.pane2.setdeltaX((5-0)*0.1);
+		plotter.pane2.setMaxY(10000);
+		plotter.pane2.setMinY(-10000);
+		plotter.pane2.setdeltaY(1000);
+		plotter.pane2.setMaxX(5);
+		plotter.pane2.setMinX(0);
+		plotter.pane2.setdeltaX((5-0)*0.1);
 		
 		PSEyeAudio[] cams = PSEyeAudio.getAvailablePSEye();
 		try {
@@ -200,7 +207,7 @@ public class SoundTrials {
 		}
 	}
 		
-	public static class Mic1Listener extends Thread implements LineListener{
+	public class Mic1Listener extends Thread implements LineListener{
 		
 		private TargetDataLine microphone;
 		
@@ -222,15 +229,15 @@ public class SoundTrials {
 					double ch4 = ((int)frame[6])<<8 | (frame[7] & 0x0FF);
 					
 					if(fCount>=100){
-						PlotterWindow.pane1.drawLine(lSample, lch1+6000, cSample, ch1+6000);
-						PlotterWindow.pane1.drawLine(lSample, lch2+2000, cSample, ch2+2000, java.awt.Color.RED);
-						PlotterWindow.pane1.drawLine(lSample, lch3-2000, cSample, ch3-2000, java.awt.Color.GREEN);
-						PlotterWindow.pane1.drawLine(lSample, lch4-6000, cSample, ch4-6000, java.awt.Color.YELLOW);
-						double maxX = PlotterWindow.pane1.getMaxX();
-						double minX = PlotterWindow.pane1.getMinX();
+						plotter.pane1.drawLine(lSample, lch1+6000, cSample, ch1+6000);
+						plotter.pane1.drawLine(lSample, lch2+2000, cSample, ch2+2000, java.awt.Color.RED);
+						plotter.pane1.drawLine(lSample, lch3-2000, cSample, ch3-2000, java.awt.Color.GREEN);
+						plotter.pane1.drawLine(lSample, lch4-6000, cSample, ch4-6000, java.awt.Color.YELLOW);
+						double maxX = plotter.pane1.getMaxX();
+						double minX = plotter.pane1.getMinX();
 						if(maxX<=cSample){
-							PlotterWindow.pane1.setMaxX(maxX+cSample-lSample);
-							PlotterWindow.pane1.setMinX(minX+cSample-lSample);
+							plotter.pane1.setMaxX(maxX+cSample-lSample);
+							plotter.pane1.setMinX(minX+cSample-lSample);
 						}
 						lSample = cSample;
 						lch1 = ch1;
@@ -257,7 +264,7 @@ public class SoundTrials {
 		
 	}
 	
-	public static class Mic2Listener extends Thread implements LineListener{
+	public class Mic2Listener extends Thread implements LineListener{
 		
 		private TargetDataLine microphone;
 		
@@ -279,15 +286,15 @@ public class SoundTrials {
 					double ch4 = ((int)frame[6])<<8 | (frame[7] & 0x0FF);
 					
 					if(fCount>=100){
-						PlotterWindow.pane2.drawLine(lSample, lch1+6000, cSample, ch1+6000);
-						PlotterWindow.pane2.drawLine(lSample, lch2+2000, cSample, ch2+2000, java.awt.Color.RED);
-						PlotterWindow.pane2.drawLine(lSample, lch3-2000, cSample, ch3-2000, java.awt.Color.GREEN);
-						PlotterWindow.pane2.drawLine(lSample, lch4-6000, cSample, ch4-6000, java.awt.Color.YELLOW);
-						double maxX = PlotterWindow.pane2.getMaxX();
-						double minX = PlotterWindow.pane2.getMinX();
+						plotter.pane2.drawLine(lSample, lch1+6000, cSample, ch1+6000);
+						plotter.pane2.drawLine(lSample, lch2+2000, cSample, ch2+2000, java.awt.Color.RED);
+						plotter.pane2.drawLine(lSample, lch3-2000, cSample, ch3-2000, java.awt.Color.GREEN);
+						plotter.pane2.drawLine(lSample, lch4-6000, cSample, ch4-6000, java.awt.Color.YELLOW);
+						double maxX = plotter.pane2.getMaxX();
+						double minX = plotter.pane2.getMinX();
 						if(maxX<=cSample){
-							PlotterWindow.pane2.setMaxX(maxX+cSample-lSample);
-							PlotterWindow.pane2.setMinX(minX+cSample-lSample);
+							plotter.pane2.setMaxX(maxX+cSample-lSample);
+							plotter.pane2.setMinX(minX+cSample-lSample);
 						}
 						lSample = cSample;
 						lch1 = ch1;
@@ -313,5 +320,68 @@ public class SoundTrials {
 		}
 		
 	}
-	
+
+	public class PlotterWindow{		
+		
+		private Window window; 			// The application window
+		public GraphPanel pane1 = null; 		// Pane containing filled rectangles
+		public GraphPanel pane2 = null; 		// Pane containing filled rectangles
+	    
+	    public PlotterWindow(){
+
+	    	window = new Window("Plotter"); 			// Create the app window
+			Toolkit theKit = window.getToolkit(); 		// Get the window toolkit
+			Dimension wndSize = theKit.getScreenSize(); // Get screen size
+			
+			int width = wndSize.width;
+			int height = wndSize.height;
+			
+			int sizeFactor = 90;
+			
+			if(width>height){
+				width = height;
+				height = height-50;
+			}
+			if(height>width){
+				height = width;
+			}
+			
+			Dimension prefdim = new Dimension(width,height);//Preffered dimensions
+			// Set the position & size of window
+			window.setBounds(0, 0, width*sizeFactor/100, height*sizeFactor/100); 	
+			window.setPreferredSize(prefdim);
+			window.setVisible(true);		// Shows window
+			window.pack();					// Packs window
+			
+			//Sends the size to the class
+			Dimension dim = window.getContentPane().getSize();
+			pane1 = new GraphPanel(dim.width,dim.height/2-2); // Pane containing filled rectangles
+			pane2 = new GraphPanel(dim.width,dim.height/2-2); // Pane containing filled rectangles
+			
+			//Adds the background picture for the first time
+			JPanel pane = new JPanel();
+			pane.setPreferredSize(dim);
+			pane.add(pane1);
+			pane.add(pane2);
+			window.getContentPane().add(pane); 
+			
+			window.setResizable(false);		// Prevents resizing
+	    	   	
+	    	pane1.setMaxX(5);
+	    	pane1.setMinX(0);
+	    	pane1.setdeltaX((5-0)*0.1);
+	    	pane1.setMaxY(100);
+	    	pane1.setMinY(-100);
+	    	pane1.setdeltaY(10);
+	    	
+	    	pane2.setMaxX(1000);
+	    	pane2.setMinX(0);
+	    	pane2.setdeltaX(100);
+	    	pane2.setMaxY(2);
+	    	pane2.setMinY(-2);
+	    	pane2.setdeltaY(0.1);
+	    	
+	    }
+		
+	}
 }
