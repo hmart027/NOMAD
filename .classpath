@@ -11,5 +11,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Plotter"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/DSPTools"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Sphinx4"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/CoreNLP"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
