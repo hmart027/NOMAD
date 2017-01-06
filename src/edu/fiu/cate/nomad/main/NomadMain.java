@@ -7,8 +7,10 @@ import com.protocol.Protocol;
 
 import comm.serial.Comm;
 import edu.fiu.cate.nomad.audio.SoundTrials;
+import edu.fiu.cate.nomad.audio.nlp.CoreNlpTrial;
 import edu.fiu.cate.nomad.audio.nlp.TranscriberDemo;
 import edu.fiu.cate.nomad.video.streaming.VideoServer;
+import edu.stanford.nlp.pipeline.CoreNLPProtos;
 
 @SuppressWarnings("unused")
 public class NomadMain {
@@ -20,7 +22,8 @@ public class NomadMain {
 //		new NomadGUI();
 //		new VideoServer();
 //		new SoundTrials();
-		new TranscriberDemo();
+//		new TranscriberDemo();
+		new CoreNlpTrial();
 		
 //		for(byte b: Protocol.pack(new byte[]{10, 1, 2, 3, 4, 5, 6}))
 //			System.out.print(Integer.toHexString(b&0x0FF)+", ");

@@ -22,7 +22,7 @@ import edu.stanford.nlp.util.CoreMap;
 
 public class CoreNlpTrial {
 	
-	CoreNlpTrial(){
+	public CoreNlpTrial(){
 		// creates a StanfordCoreNLP object, with POS tagging, lemmatization, NER, parsing, and coreference resolution 
 		Properties props = new Properties();
 		props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
@@ -53,6 +53,7 @@ public class CoreNlpTrial {
 				    String ne = token.get(NamedEntityTagAnnotation.class);
 				    
 				    System.out.println(word+": "+pos+", "+ne);
+				    System.out.println("\t"+PennPartOfSpeech.getDescription(pos));
 			  }
 	
 			  // this is the parse tree of the current sentence
