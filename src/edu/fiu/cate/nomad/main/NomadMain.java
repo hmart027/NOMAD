@@ -22,8 +22,8 @@ public class NomadMain {
 //		new NomadGUI();
 //		new VideoServer();
 //		new SoundTrials();
-//		new TranscriberDemo();
-		new CoreNlpTrial();
+		new TranscriberDemo();
+//		new CoreNlpTrial();
 		
 //		for(byte b: Protocol.pack(new byte[]{10, 1, 2, 3, 4, 5, 6}))
 //			System.out.print(Integer.toHexString(b&0x0FF)+", ");

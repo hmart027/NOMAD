@@ -26,7 +26,11 @@ public class TranscriberDemo {
 
 		try {
 			PSEyeAudio[] cams = PSEyeAudio.getAvailablePSEye();
-			LiveSpeechRecognizer recognizer = new LiveSpeechRecognizer(configuration, cams[0].getMixer().getMixerInfo());
+			LiveSpeechRecognizer recognizer;
+			if(cams.length>0)
+				recognizer = new LiveSpeechRecognizer(configuration, cams[0].getMixer().getMixerInfo());
+			else 
+				recognizer = new LiveSpeechRecognizer(configuration);
 
 			System.out.println("Recognizer Created.....");
 
