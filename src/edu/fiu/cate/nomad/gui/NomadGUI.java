@@ -88,7 +88,9 @@ public class NomadGUI extends JFrame{
 					DS4 joystick = (DS4) gamepad;
 					double ax = joystick.getLX();
 					double ay = joystick.getLY();
-					double az = joystick.getRY();	
+					double az = joystick.getRX();	
+//					System.out.println("AX: "+ax);
+					System.out.println("Rot: "+az);
 	
 					if(joystick.isTriggerPressed()){
 						excecuteAutoRutine = false;

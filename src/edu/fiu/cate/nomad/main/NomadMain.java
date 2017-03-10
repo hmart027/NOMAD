@@ -9,6 +9,7 @@ import comm.serial.Comm;
 import edu.fiu.cate.nomad.audio.SoundTrials;
 import edu.fiu.cate.nomad.audio.nlp.CoreNlpTrial;
 import edu.fiu.cate.nomad.audio.nlp.TranscriberDemo;
+import edu.fiu.cate.nomad.gui.NomadGUI;
 import edu.fiu.cate.nomad.video.streaming.VideoServer;
 import edu.stanford.nlp.pipeline.CoreNLPProtos;
 
@@ -19,10 +20,10 @@ public class NomadMain {
 	private static int    NOMAD_BAUD = 9600;
 
 	NomadMain(){
-//		new NomadGUI();
+		new NomadGUI();
 //		new VideoServer();
 //		new SoundTrials();
-		new TranscriberDemo();
+//		new TranscriberDemo();
 //		new CoreNlpTrial();
 		
 //		for(byte b: Protocol.pack(new byte[]{10, 1, 2, 3, 4, 5, 6}))
