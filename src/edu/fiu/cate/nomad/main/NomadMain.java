@@ -20,11 +20,12 @@ public class NomadMain {
 	private static int    NOMAD_BAUD = 9600;
 
 	NomadMain(){
-		new NomadGUI();
+//		new NomadGUI();
+		
 //		new VideoServer();
 //		new SoundTrials();
 //		new TranscriberDemo();
-//		new CoreNlpTrial();
+		new CoreNlpTrial();
 		
 //		for(byte b: Protocol.pack(new byte[]{10, 1, 2, 3, 4, 5, 6}))
 //			System.out.print(Integer.toHexString(b&0x0FF)+", ");
