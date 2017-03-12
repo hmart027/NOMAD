@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<configuration>
+	<NomadMain>
+		<function name="setLeftEyeIndex">
+			<param type="java.lang.Integer" value="0"></param></function>
+		<function name="setRightEyeIndex">
+			<param type="java.lang.Integer" value="1"></param></function></NomadMain>
+	<Base>
+		<function></function></Base></configuration>

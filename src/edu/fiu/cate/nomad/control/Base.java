@@ -6,42 +6,37 @@ public class Base {
 	public static final byte[] ENCODER_REQ_PACKET = {10};
 	public static final byte[] VELOCITY_REQ_PACKET = {11};
 
-	private volatile boolean connected = false;
+	private static volatile boolean connected = false;
 	
-	private double wheelPWM, turnPWM, turretPWM;
+	private static double wheelPWM, turnPWM, turretPWM;
 
-	private int wheelEncoderCount, turningEncoderCount, turretEncoderCount;
+	private static int wheelEncoderCount, turningEncoderCount, turretEncoderCount;
 	
-	private double wheelSpeed, turningSpeed, turretSpeed;
-	private double baseAngle, turretAngle;
+	private static double wheelSpeed, turningSpeed, turretSpeed;
+	private static double baseAngle, turretAngle;
 	
-	private HeartBeatTimer hbTimer = new HeartBeatTimer();
+	private static HeartBeatTimer hbTimer = new HeartBeatTimer();
 	
-	public Base(){}
-	
-	public static Base getInstance(){
-		Base b = new Base();
-		return b;
+	private Base(){}
+		
+	public static void setWheelPWM(int wheel){
+		wheelPWM = wheel;
 	}
 	
-	public void setWheelPWM(int wheel){
-		this.wheelPWM = wheel;
+	public static void setTurnPWM(int turn){
+		turnPWM = turn;
 	}
 	
-	public void setTurnPWM(int turn){
-		this.turnPWM = turn;
+	public static void setTurretPWM(int turret){
+		turretPWM = turret;
 	}
 	
-	public void setTurretPWM(int turret){
-		this.turretPWM = turret;
-	}
-	
-	public byte[] getBaseMotorsPWMMessage(){
-		return new byte[]{1, (byte) this.wheelPWM, (byte) this.turnPWM, (byte) this.turretPWM};
+	public static byte[] getBaseMotorsPWMMessage(){
+		return new byte[]{1, (byte) wheelPWM, (byte) turnPWM, (byte) turretPWM};
 	}
 	
 	long lt = 0;
-	public boolean processPayload(byte[] payload){
+	public static boolean processPayload(byte[] payload){
 //		System.out.println("Good Msg");
 //		long ct = System.currentTimeMillis();
 //		System.out.println("Dt: "+(ct-lt));
@@ -71,7 +66,7 @@ public class Base {
 		return false;
 	}
 	
-	public void processHeartBeat(){
+	public static void processHeartBeat(){
 		if(!connected)
 			System.out.println("Connection");
 		connected=true;
@@ -80,7 +75,7 @@ public class Base {
 		hbTimer.start();
 	}
 	
-	private class HeartBeatTimer extends Thread{	
+	private static class HeartBeatTimer extends Thread{	
 		private volatile boolean kill = false;
 		public void kill(){
 			kill = true;

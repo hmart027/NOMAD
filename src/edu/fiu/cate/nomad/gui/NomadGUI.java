@@ -42,7 +42,6 @@ public class NomadGUI extends JFrame{
 	private volatile boolean msgSent = false;
 	
 	private Protocol protocol = new Protocol();
-	private Base base = new Base();
 	
 	private DS4 joystick = DS4.getJoystick(10, true);
 	
@@ -93,11 +92,11 @@ public class NomadGUI extends JFrame{
 					}
 					
 					if(!excecuteAutoRutine){
-						base.setWheelPWM((int)(-ay*100));
-						base.setTurnPWM((int)(-ax*100));
-						base.setTurretPWM((int)(-az*100));
+						Base.setWheelPWM((int)(-ay*100));
+						Base.setTurnPWM((int)(-ax*100));
+						Base.setTurretPWM((int)(-az*100));
 						if(com.isConnected()){
-							byte[] msg = Protocol.pack(base.getBaseMotorsPWMMessage());
+							byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
 							com.sendByteArray(msg);
 							msgSent = true;
 						}
@@ -208,7 +207,7 @@ public class NomadGUI extends JFrame{
 		@Override
 		public void onByteReceived(int d) {
 			if(protocol.parseChar((char)d))
-				base.processPayload(protocol.getPayload());
+				Base.processPayload(protocol.getPayload());
 		}
 		
 	}
@@ -243,23 +242,23 @@ public class NomadGUI extends JFrame{
 				System.out.println("P: "+e.getKeyChar());
 				switch(e.getKeyChar()){
 				case 'w':
-					base.setWheelPWM(50);
+					Base.setWheelPWM(50);
 					pad.pressUP(true);
 					break;
 				case 's':
-					base.setWheelPWM(-50);
+					Base.setWheelPWM(-50);
 					pad.pressDown(true);
 					break;
 				case 'a':
-					base.setTurnPWM(50);
+					Base.setTurnPWM(50);
 					pad.pressLeft(true);
 					break;
 				case 'd':
-					base.setTurnPWM(-50);
+					Base.setTurnPWM(-50);
 					pad.pressRight(true);
 					break;
 				}
-				com.sendByteArray(Protocol.pack(base.getBaseMotorsPWMMessage()));
+				com.sendByteArray(Protocol.pack(Base.getBaseMotorsPWMMessage()));
 				msgSent = true;
 			}
 		}
@@ -270,28 +269,28 @@ public class NomadGUI extends JFrame{
 			keyMap[e.getKeyCode()] = false;
 			switch(e.getKeyChar()){
 			case 'w':
-				base.setWheelPWM(0);
+				Base.setWheelPWM(0);
 				pad.pressUP(false);
 				break;
 			case 's':
-				base.setWheelPWM(0);
+				Base.setWheelPWM(0);
 				pad.pressDown(false);
 				break;
 			case 'a':
-				base.setTurnPWM(0);
+				Base.setTurnPWM(0);
 				pad.pressLeft(false);
 				break;
 			case 'd':
-				base.setTurnPWM(0);
+				Base.setTurnPWM(0);
 				pad.pressRight(false);
 				break;
 			default:
 				System.out.println("Default");
-				base.setWheelPWM(0);
+				Base.setWheelPWM(0);
 					
 			}
 			if(com.isConnected()){
-				byte[] msg = Protocol.pack(base.getBaseMotorsPWMMessage());
+				byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
 				com.sendByteArray(msg);
 				msgSent = true;
 			}
@@ -323,10 +322,10 @@ public class NomadGUI extends JFrame{
 		public void run(){
 
 			while(excecuteAutoRutine){
-				base.setWheelPWM((int)(50));
-				base.setTurnPWM((int)(25));
+				Base.setWheelPWM((int)(50));
+				Base.setTurnPWM((int)(25));
 				if(com.isConnected() && excecuteAutoRutine){
-					byte[] msg = Protocol.pack(base.getBaseMotorsPWMMessage());
+					byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
 					com.sendByteArray(msg);
 					msgSent = true;
 				}
