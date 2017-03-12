@@ -6,18 +6,17 @@ public class Base {
 	public static final byte[] ENCODER_REQ_PACKET = {10};
 	public static final byte[] VELOCITY_REQ_PACKET = {11};
 
-	private static volatile boolean connected = false;
+	protected static volatile boolean connected = false;
+		
+	protected static double wheelPWM, turnPWM, turretPWM;
+	protected static int wheelEncoderCount, turningEncoderCount, turretEncoderCount;
 	
-	private static double wheelPWM, turnPWM, turretPWM;
-
-	private static int wheelEncoderCount, turningEncoderCount, turretEncoderCount;
+	protected static double wheelSpeed, turningSpeed, turretSpeed;
+	protected static double baseAngle, turretAngle;
 	
-	private static double wheelSpeed, turningSpeed, turretSpeed;
-	private static double baseAngle, turretAngle;
+	protected static HeartBeatTimer hbTimer = new HeartBeatTimer();
 	
-	private static HeartBeatTimer hbTimer = new HeartBeatTimer();
-	
-	private Base(){}
+	protected Base(){}
 		
 	public static void setWheelPWM(int wheel){
 		wheelPWM = wheel;
@@ -75,7 +74,7 @@ public class Base {
 		hbTimer.start();
 	}
 	
-	private static class HeartBeatTimer extends Thread{	
+	protected static class HeartBeatTimer extends Thread{	
 		private volatile boolean kill = false;
 		public void kill(){
 			kill = true;

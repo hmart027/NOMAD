@@ -24,6 +24,7 @@ import com.protocol.Protocol;
 import comm.serial.Comm;
 import comm.serial.InputStreamListener;
 import edu.fiu.cate.nomad.control.Base;
+import edu.fiu.cate.nomad.control.NomadBase;
 
 public class NomadGUI extends JFrame{
 	private static final long serialVersionUID = -8206042273607451553L;
@@ -37,11 +38,11 @@ public class NomadGUI extends JFrame{
 	
 	DirectionalPad pad;
 	
-	private Comm com = new Comm();
-	private static int    NOMAD_BAUD = 57600;
-	private volatile boolean msgSent = false;
-	
-	private Protocol protocol = new Protocol();
+//	private Comm com = new Comm();
+//	private static int    NOMAD_BAUD = 57600;
+//	private volatile boolean msgSent = false;
+//	private Protocol protocol = new Protocol();
+	private NomadBase base = new NomadBase();
 	
 	private DS4 joystick = DS4.getJoystick(10, true);
 	
@@ -66,7 +67,7 @@ public class NomadGUI extends JFrame{
 		menuBar.add(new RoutineMenu());
 		this.setJMenuBar(menuBar);
 		
-		com.addInputStreamListener(new BaseListener());
+//		com.addInputStreamListener(new BaseListener());
 		
 		KeyCommand keys = new KeyCommand();
 		contentPane.addKeyListener(keys);
@@ -95,11 +96,11 @@ public class NomadGUI extends JFrame{
 						Base.setWheelPWM((int)(-ay*100));
 						Base.setTurnPWM((int)(-ax*100));
 						Base.setTurretPWM((int)(-az*100));
-						if(com.isConnected()){
-							byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
-							com.sendByteArray(msg);
-							msgSent = true;
-						}
+//						if(com.isConnected()){
+//							byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
+//							com.sendByteArray(msg);
+//							msgSent = true;
+//						}
 					}
 				}
 			});
@@ -138,7 +139,8 @@ public class NomadGUI extends JFrame{
 			disconnect.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					com.closeComm();
+	//				com.closeComm();
+					base.disconnect();
 					for(JMenuItem i: ports.values())
 						i.setEnabled(true);
 					disconnect.setEnabled(false);
@@ -160,11 +162,15 @@ public class NomadGUI extends JFrame{
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							String txt = ((JMenuItem)e.getSource()).getText();
-							com.closeComm();
-							if(com.getComm( txt, NOMAD_BAUD)){
-								System.out.println("Connected to: "+txt+",  "+NOMAD_BAUD);
-								new KeepAliveHeartbeat(com.getOutputStream()).start();
-								new EncoderDataRequest().start();
+//							com.closeComm();
+//							if(com.getComm( txt, NOMAD_BAUD)){
+//								System.out.println("Connected to: "+txt+",  "+NOMAD_BAUD);
+//								new KeepAliveHeartbeat(com.getOutputStream()).start();
+//								new EncoderDataRequest().start();
+//							}	
+							base.disconnect();
+							if(base.connectTo( txt)){
+								System.out.println("Connected to: "+txt);
 							}	
 							((JMenuItem)e.getSource()).setEnabled(false);
 							refresh.setEnabled(false);
@@ -188,6 +194,8 @@ public class NomadGUI extends JFrame{
 	
 	public class RoutineMenu extends JMenu{
 		
+		private static final long serialVersionUID = -1490951096370569562L;
+
 		public RoutineMenu(){
 			this.setText("Routines");
 			JMenuItem r1 = new JMenuItem("Simple turn");
@@ -202,7 +210,7 @@ public class NomadGUI extends JFrame{
 		}
 	}
 	
-	public class BaseListener implements InputStreamListener{
+/*	public class BaseListener implements InputStreamListener{
 
 		@Override
 		public void onByteReceived(int d) {
@@ -232,6 +240,21 @@ public class NomadGUI extends JFrame{
 		}
 	}
 	
+	public class EncoderDataRequest extends Thread{
+		public void run(){
+			while(com.isConnected()){
+				try {
+					Thread.sleep(500);
+//					com.sendByteArray(ENCODER_REQ_PACKET, 10);
+//					com.sendByteArray(VELOCITY_REQ_PACKET, 10);
+//					msgSent = true;
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}*/
+	
 	public class KeyCommand implements KeyListener{
 		boolean[] keyMap = new boolean[128];
 		
@@ -258,8 +281,8 @@ public class NomadGUI extends JFrame{
 					pad.pressRight(true);
 					break;
 				}
-				com.sendByteArray(Protocol.pack(Base.getBaseMotorsPWMMessage()));
-				msgSent = true;
+//				com.sendByteArray(Protocol.pack(Base.getBaseMotorsPWMMessage()));
+//				msgSent = true;
 			}
 		}
 
@@ -289,11 +312,11 @@ public class NomadGUI extends JFrame{
 				Base.setWheelPWM(0);
 					
 			}
-			if(com.isConnected()){
-				byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
-				com.sendByteArray(msg);
-				msgSent = true;
-			}
+//			if(com.isConnected()){
+//				byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
+//				com.sendByteArray(msg);
+//				msgSent = true;
+//			}
 		}
 
 		@Override
@@ -301,35 +324,19 @@ public class NomadGUI extends JFrame{
 		}
 	}
 
-	public class EncoderDataRequest extends Thread{
-		public void run(){
-			while(com.isConnected()){
-				try {
-					Thread.sleep(500);
-//					com.sendByteArray(ENCODER_REQ_PACKET, 10);
-//					com.sendByteArray(VELOCITY_REQ_PACKET, 10);
-//					msgSent = true;
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-
 	public class SmallRoutine extends Thread{
 		
 		public void run(){
 
-			while(excecuteAutoRutine){
-				Base.setWheelPWM((int)(50));
-				Base.setTurnPWM((int)(25));
-				if(com.isConnected() && excecuteAutoRutine){
-					byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
-					com.sendByteArray(msg);
-					msgSent = true;
-				}
-			}
+//			while(excecuteAutoRutine){
+//				Base.setWheelPWM((int)(50));
+//				Base.setTurnPWM((int)(25));
+//				if(com.isConnected() && excecuteAutoRutine){
+//					byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
+//					com.sendByteArray(msg);
+//					msgSent = true;
+//				}
+//			}
 		}
 	}
 }

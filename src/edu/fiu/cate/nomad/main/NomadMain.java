@@ -10,6 +10,7 @@ import edu.fiu.cate.nomad.audio.SoundTrials;
 import edu.fiu.cate.nomad.audio.nlp.CoreNlpTrial;
 import edu.fiu.cate.nomad.audio.nlp.TranscriberDemo;
 import edu.fiu.cate.nomad.config.NomadConfiguration;
+import edu.fiu.cate.nomad.control.NomadBase;
 import edu.fiu.cate.nomad.gui.NomadGUI;
 import edu.fiu.cate.nomad.video.streaming.VideoServer;
 import edu.stanford.nlp.pipeline.CoreNLPProtos;
@@ -19,8 +20,9 @@ public class NomadMain {
 
 	NomadMain(){
 		NomadConfiguration.loadConfiguration();
-//		new NomadGUI();
+//		new NomadBase();
 		
+		new NomadGUI();
 //		new VideoServer();
 //		new SoundTrials();
 //		new TranscriberDemo();

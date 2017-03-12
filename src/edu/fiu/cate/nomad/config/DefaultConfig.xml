@@ -6,4 +6,6 @@
 		<function name="setRightEyeIndex">
 			<param type="java.lang.Integer" value="1"></param></function></NomadMain>
 	<Base>
-		<function></function></Base></configuration>
+		<function></function></Base>
+	<configurableClass class="edu.fiu.cate.nomad.control.NomadBase">
+		<variable name="baud" value="56700"></variable></configurableClass></configuration>
