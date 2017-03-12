@@ -1,11 +1,5 @@
 <?xml version="1.0"?>
 <configuration>
-	<NomadMain>
-		<function name="setLeftEyeIndex">
-			<param type="java.lang.Integer" value="0"></param></function>
-		<function name="setRightEyeIndex">
-			<param type="java.lang.Integer" value="1"></param></function></NomadMain>
-	<Base>
-		<function></function></Base>
 	<configurableClass class="edu.fiu.cate.nomad.control.NomadBase">
-		<variable name="baud" value="56700"></variable></configurableClass></configuration>
+		<variable name="baudrate" value="56700"></variable>
+		<variable name="updateFrequency" value="100"></variable></configurableClass></configuration>

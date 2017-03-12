@@ -29,7 +29,8 @@ public class NomadConfiguration {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			if(file==null || file.length()==0)
-				configDoc = builder.parse(new File(NomadConfiguration.class.getResource("/edu/fiu/cate/nomad/config/DefaultConfig.xml").getFile()));
+				configDoc = builder.parse(NomadConfiguration.class
+						.getResourceAsStream("/edu/fiu/cate/nomad/config/DefaultConfig.xml"));
 			else
 				configDoc = builder.parse(new File(file));
 			configLoaded=true;
