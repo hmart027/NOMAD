@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.OutputStream;
+//import java.io.OutputStream;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -22,7 +22,7 @@ import joystick.PollEventListener;
 import com.protocol.Protocol;
 
 import comm.serial.Comm;
-import comm.serial.InputStreamListener;
+//import comm.serial.InputStreamListener;
 import edu.fiu.cate.nomad.control.Base;
 import edu.fiu.cate.nomad.control.NomadBase;
 

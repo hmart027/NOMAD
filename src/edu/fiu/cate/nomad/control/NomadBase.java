@@ -3,6 +3,7 @@ package edu.fiu.cate.nomad.control;
 import java.io.OutputStream;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.protocol.Protocol;
 
@@ -13,9 +14,9 @@ import edu.fiu.cate.nomad.config.NomadConfiguration;
 
 public class NomadBase extends Base implements Configurable, InputStreamListener{
 
-	private static Comm comPort = new Comm();
-	private static int baudrate = 57600;
-	private static Protocol protocol = new Protocol();
+	private Comm comPort = new Comm();
+	private int baudrate = 57600;
+	private Protocol protocol = new Protocol();
 	private volatile boolean msgSent = false;
 	private int updateFrequency = 200;
 	private double updateInterval = 1.0/(double)updateFrequency;
@@ -33,6 +34,20 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	@Override
 	public boolean loadConfiguration(Node config) {
 		System.out.println("Loading NomadBase configuration.");
+		NodeList variableNodes = config.getChildNodes();
+		for(int v=0; v<variableNodes.getLength(); v++){
+			Node var = variableNodes.item(v);
+			if(!var.getNodeName().equals("variable")) continue;
+			switch(var.getAttributes().getNamedItem("name").getNodeValue()){
+			case "boudrate":
+				this.baudrate = Integer.parseInt(var.getAttributes().getNamedItem("value").getNodeValue());
+				break;
+			case "updateFrequency":
+				this.updateFrequency = Integer.parseInt(var.getAttributes().getNamedItem("value").getNodeValue());
+				this.updateInterval = 1.0/(double)updateFrequency;
+				break;
+			}
+		}
 		return false;
 	}
 
