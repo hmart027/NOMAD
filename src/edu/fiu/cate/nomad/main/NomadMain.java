@@ -13,6 +13,7 @@ import edu.fiu.cate.nomad.config.NomadConfiguration;
 import edu.fiu.cate.nomad.control.NomadBase;
 import edu.fiu.cate.nomad.gui.NomadGUI;
 import edu.fiu.cate.nomad.video.streaming.VideoServer;
+import edu.fiu.cate.nomad.vision.CameraControl;
 import edu.stanford.nlp.pipeline.CoreNLPProtos;
 
 @SuppressWarnings("unused")
@@ -22,8 +23,9 @@ public class NomadMain {
 		NomadConfiguration.loadConfiguration();
 //		new NomadBase();
 		
-		new NomadGUI();
-//		new VideoServer();
+//		new NomadGUI();
+		new VideoServer().start();
+		new CameraControl();
 //		new SoundTrials();
 //		new TranscriberDemo();
 //		new CoreNlpTrial();

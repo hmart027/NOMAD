@@ -32,10 +32,10 @@ import com.xuggle.xuggler.video.IConverter;
 
 import edu.fiu.cate.nomad.gui.binocular.StereoView;
 
-public class VideoServer {
+public class VideoServer extends Thread{
 	
-	int leftCameraIndex = 0;
-	int rightCameraIndex = 1;
+	int leftCameraIndex = 1;
+	int rightCameraIndex = 2;
 	
 	OutputStream outputStream;
 	boolean rCamLoaded, lCamLoaded;
@@ -116,9 +116,12 @@ public class VideoServer {
 		
 		System.out.println(frame_left.width() + "x" + frame_left.height());
 		System.out.println(camera_left.get(Videoio.CAP_PROP_FPS) + " fps");
-		
-		new FrameGrabber().start();
 				
+	}
+	
+	public void run(){
+		new FrameGrabber().start();
+		
 		long t0 = System.nanoTime();
 		while (true) {
 			grabFrames = true;
@@ -152,7 +155,6 @@ public class VideoServer {
 			
 //			v2.setImage(ImageManipulation.getBufferedImage(getEdges(imgArray)));
 		}
-		
 	}
 	
 	public byte[][][] getImageArray(Mat img){

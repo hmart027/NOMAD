@@ -35,10 +35,10 @@ public class CameraControl {
 //			System.out.println("ry:" + controller.getRY());
 //			System.out.println("ly:" + controller.getLY());
 //			System.out.println();
-			int rX = (int) ((controller.getRX()/2.0+0.5)*180);
-			int rY = (int) ((controller.getRY()/2.0+0.5)*180);
-			int lX = (int) ((controller.getRX()/2.0+0.5)*180);
-			int lY = (int) ((controller.getRY()/2.0+0.5)*180);
+			int rX = (int) (controller.getRX()*90);
+			int rY = (int) (controller.getRY()*90);
+			int lX = (int) (controller.getRX()*90);
+			int lY = (int) (controller.getRY()*90);
 			System.out.println("cy:" + rY);
 			serial.sendByteArray(Protocol.pack(new byte[]{0, (byte) rX, (byte) rY, (byte) lX, (byte) lY}));
 			try {
