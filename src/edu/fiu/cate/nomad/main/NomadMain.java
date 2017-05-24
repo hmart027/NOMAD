@@ -11,6 +11,7 @@ import edu.fiu.cate.nomad.audio.nlp.CoreNlpTrial;
 import edu.fiu.cate.nomad.audio.nlp.TranscriberDemo;
 import edu.fiu.cate.nomad.config.NomadConfiguration;
 import edu.fiu.cate.nomad.control.NomadBase;
+import edu.fiu.cate.nomad.control.SerialComTrials;
 import edu.fiu.cate.nomad.gui.NomadGUI;
 import edu.fiu.cate.nomad.video.streaming.VideoServer;
 import edu.fiu.cate.nomad.vision.CameraControl;
@@ -24,11 +25,15 @@ public class NomadMain {
 //		new NomadBase();
 		
 //		new NomadGUI();
-		new VideoServer().start();
-		new CameraControl();
+		
+//		new VideoServer().start();
+//		new CameraControl();
+		
 //		new SoundTrials();
 //		new TranscriberDemo();
 //		new CoreNlpTrial();
+		
+		new SerialComTrials();
 	}
 	
 	public static void main(String[] args){
