@@ -18,7 +18,7 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	private int baudrate = 57600;
 	private Protocol protocol = new Protocol();
 	private volatile boolean msgSent = false;
-	private int updateFrequency = 200;
+	private int updateFrequency = 100;
 	private double updateInterval = 1.0/(double)updateFrequency;
 	
 	public NomadBase(){
@@ -27,7 +27,8 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 		NomadConfiguration.loadClassConfiguration(this);
 		
 		comPort.addInputStreamListener(this);
-//		new EncoderDataRequest().start();
+		new EncoderDataRequest().start();
+		new BaseUpdater().start();
 		
 	}
 
@@ -58,6 +59,7 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	};
 	
 	public boolean connectTo(String portName){
+		System.out.println("Conecting to: "+portName+": "+baudrate);
 		return comPort.getComm(portName, baudrate);
 	}
 	
@@ -67,8 +69,11 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	
 	@Override
 	public void onByteReceived(int d) {
-		if(protocol.parseChar((char)d))
-			Base.processPayload(protocol.getPayload());
+//		System.out.print(Integer.toHexString(d)+" ");
+		if(protocol.parseChar((char)d)){
+//			System.out.println();
+			processPayload(protocol.getPayload());
+		}
 	}
 	
 	public class BaseUpdater extends Thread{
@@ -114,9 +119,11 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 			while(true){
 				try {
 					Thread.sleep(500);
-//					com.sendByteArray(ENCODER_REQ_PACKET, 10);
-//					com.sendByteArray(VELOCITY_REQ_PACKET, 10);
-//					msgSent = true;
+					if(comPort.isConnected()){
+						comPort.sendByteArray(Protocol.pack(ENCODER_REQ_PACKET));
+//						com.sendByteArray(VELOCITY_REQ_PACKET, 10);
+//						msgSent = true;
+					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

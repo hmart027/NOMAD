@@ -31,7 +31,23 @@ public class Base {
 	}
 	
 	public static byte[] getBaseMotorsPWMMessage(){
-		return new byte[]{1, (byte) wheelPWM, (byte) turnPWM, (byte) turretPWM};
+		byte whee, turn, turr;
+		whee = (byte) wheelPWM;
+		turn = (byte) turnPWM;
+		turr = (byte) turretPWM;
+		if(whee<0){
+			whee*=-1;
+			whee=(byte) (whee|0b10000000);
+		}
+		if(turn<0){
+			turn*=-1;
+			turn=(byte) (turn|0b10000000);
+		}
+		if(turr<0){
+			turr*=-1;
+			turr=(byte) (turr|0b10000000);
+		}
+		return new byte[]{1, whee, turn, turr};
 	}
 	
 	long lt = 0;
@@ -40,18 +56,19 @@ public class Base {
 //		long ct = System.currentTimeMillis();
 //		System.out.println("Dt: "+(ct-lt));
 //		lt = ct;
-		processHeartBeat();
+//		processHeartBeat();
 		switch(payload[0]){
 		case 0:{		//Heartbeat
 //			System.out.println("HB: "+(System.currentTimeMillis()-lt));
 //			lt = System.currentTimeMillis();
+			System.out.println("HB");
 			return true;
 		}
 		case 10:{		//Motors Location (0 - 360)
-			wheelEncoderCount 		= ((int)payload[4])<<24 | (((int)payload[3])&0x0FF)<<16 | (((int)payload[2])&0x0FF)<<8 | (((int)payload[1])&0x0FF);
-			turningEncoderCount		= ((int)payload[8])<<24 | (((int)payload[7])&0x0FF)<<16 | (((int)payload[6])&0x0FF)<<8 | ((int)payload[5])&0x0FF;
-			turretEncoderCount		= ((int)payload[12])<<24 | (((int)payload[11])&0x0FF)<<16 | (((int)payload[10])&0x0FF)<<8 | ((int)payload[9])&0x0FF;
-			System.out.println(wheelEncoderCount +", "+ turningEncoderCount +", "+ turretEncoderCount);
+			wheelEncoderCount 		= ((int)payload[1])<<24 | (((int)payload[2])&0x0FF)<<16 | (((int)payload[3])&0x0FF)<<8 | (((int)payload[4])&0x0FF);
+			turningEncoderCount		= ((int)payload[5])<<24 | (((int)payload[6])&0x0FF)<<16 | (((int)payload[7])&0x0FF)<<8 | ((int)payload[8])&0x0FF;
+			turretEncoderCount		= ((int)payload[9])<<24 | (((int)payload[10])&0x0FF)<<16 | (((int)payload[11])&0x0FF)<<8 | ((int)payload[12])&0x0FF;
+			System.out.println("Enc: "+wheelEncoderCount +", "+ turningEncoderCount +", "+ turretEncoderCount);
 			return true;
 		}
 		case 11:{		//Motors Velocities (counts/ms)

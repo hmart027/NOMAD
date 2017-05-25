@@ -9,6 +9,10 @@ public class SerialComTrials {
 	
 	public SerialComTrials(){
 		Comm port = new Comm();
+		for(String s: Comm.getSerialPortList()){
+			System.out.println(s);
+		}
+//		port.getComm("/dev/ttyS0", 57600);
 		port.getComm("/dev/ttyUSB0", 57600);
 		port.addInputStreamListener(new InputStreamListener() {
 			

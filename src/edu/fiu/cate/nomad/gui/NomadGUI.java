@@ -86,14 +86,14 @@ public class NomadGUI extends JFrame{
 					double ay = joystick.getLY();
 					double az = joystick.getRX();	
 //					System.out.println("AX: "+ax);
-					System.out.println("Rot: "+az);
+//					System.out.println("Rot: "+az);
 	
 					if(joystick.isTriggerPressed()){
 						excecuteAutoRutine = false;
 					}
 					
 					if(!excecuteAutoRutine){
-						Base.setWheelPWM((int)(-ay*100));
+//						Base.setWheelPWM((int)(-ay*100));
 						Base.setTurnPWM((int)(-ax*100));
 						Base.setTurretPWM((int)(-az*100));
 //						if(com.isConnected()){

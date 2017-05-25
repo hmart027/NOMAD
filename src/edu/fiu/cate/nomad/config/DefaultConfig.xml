@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <configuration>
 	<configurableClass class="edu.fiu.cate.nomad.control.NomadBase">
-		<variable name="baudrate" value="56700"></variable>
+		<variable name="baudrate" value="57600"></variable>
 		<variable name="updateFrequency" value="100"></variable></configurableClass></configuration>

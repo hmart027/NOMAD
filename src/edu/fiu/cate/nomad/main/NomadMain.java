@@ -22,9 +22,7 @@ public class NomadMain {
 
 	NomadMain(){
 		NomadConfiguration.loadConfiguration();
-//		new NomadBase();
-		
-//		new NomadGUI();
+		new NomadGUI();
 		
 //		new VideoServer().start();
 //		new CameraControl();
@@ -33,7 +31,11 @@ public class NomadMain {
 //		new TranscriberDemo();
 //		new CoreNlpTrial();
 		
-		new SerialComTrials();
+//		new SerialComTrials();
+		
+//		for(byte b : Protocol.pack(new byte[] {0xa, 0, 0, 0, 0, 0, 0})){
+//			System.out.print(Integer.toHexString(b & 0x0FF)+" ");
+//		}
 	}
 	
 	public static void main(String[] args){
