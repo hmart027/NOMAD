@@ -31,7 +31,7 @@ public class SerialComTrials {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			port.sendByteArray(msg);
+//			port.sendByteArray(msg);
 		}
 	}
 

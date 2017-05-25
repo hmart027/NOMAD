@@ -70,6 +70,7 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	@Override
 	public void onByteReceived(int d) {
 //		System.out.print(Integer.toHexString(d)+" ");
+//		System.out.print((char)(d));
 		if(protocol.parseChar((char)d)){
 //			System.out.println();
 			processPayload(protocol.getPayload());
