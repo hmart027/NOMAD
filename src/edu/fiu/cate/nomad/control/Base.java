@@ -5,6 +5,7 @@ public class Base {
 	public static final byte[] HB_PACKET = {0};
 	public static final byte[] ENCODER_REQ_PACKET = {10};
 	public static final byte[] VELOCITY_REQ_PACKET = {11};
+	public static final byte[] IR_REQ_PACKET = {20};
 
 	protected static volatile boolean connected = false;
 		
@@ -13,6 +14,8 @@ public class Base {
 	
 	protected static double wheelSpeed, turningSpeed, turretSpeed;
 	protected static double baseAngle, turretAngle;
+	
+	protected static int[] irSensors = new int[16];
 	
 	protected static HeartBeatTimer hbTimer = new HeartBeatTimer();
 	
@@ -65,9 +68,14 @@ public class Base {
 			return true;
 		}
 		case 10:{		//Motors Location (0 - 360)
-			wheelEncoderCount 		= ((int)payload[1])<<24 | (((int)payload[2])&0x0FF)<<16 | (((int)payload[3])&0x0FF)<<8 | (((int)payload[4])&0x0FF);
-			turningEncoderCount		= ((int)payload[5])<<24 | (((int)payload[6])&0x0FF)<<16 | (((int)payload[7])&0x0FF)<<8 | ((int)payload[8])&0x0FF;
-			turretEncoderCount		= ((int)payload[9])<<24 | (((int)payload[10])&0x0FF)<<16 | (((int)payload[11])&0x0FF)<<8 | ((int)payload[12])&0x0FF;
+//			//MSB first
+//			wheelEncoderCount 		= ((int)payload[1])<<24 | (((int)payload[2])&0x0FF)<<16 | (((int)payload[3])&0x0FF)<<8 | (((int)payload[4])&0x0FF);
+//			turningEncoderCount		= ((int)payload[5])<<24 | (((int)payload[6])&0x0FF)<<16 | (((int)payload[7])&0x0FF)<<8 | ((int)payload[8])&0x0FF;
+//			turretEncoderCount		= ((int)payload[9])<<24 | (((int)payload[10])&0x0FF)<<16 | (((int)payload[11])&0x0FF)<<8 | ((int)payload[12])&0x0FF;
+			//LSB first
+			wheelEncoderCount 		= ((int)payload[4])<<24 | (((int)payload[3])&0x0FF)<<16 | (((int)payload[2])&0x0FF)<<8 | (((int)payload[1])&0x0FF);
+			turningEncoderCount		= ((int)payload[8])<<24 | (((int)payload[7])&0x0FF)<<16 | (((int)payload[6])&0x0FF)<<8 | ((int)payload[5])&0x0FF;
+			turretEncoderCount		= ((int)payload[12])<<24 | (((int)payload[11])&0x0FF)<<16 | (((int)payload[10])&0x0FF)<<8 | ((int)payload[9])&0x0FF;
 			System.out.println("Enc: "+wheelEncoderCount +", "+ turningEncoderCount +", "+ turretEncoderCount);
 			return true;
 		}
@@ -77,6 +85,18 @@ public class Base {
 			int turretVel	= ((int)payload[12])<<24 | (((int)payload[11])&0x0FF)<<16 | (((int)payload[10])&0x0FF)<<8 | ((int)payload[9])&0x0FF;
 			System.out.println(wheelVel+", "+turnVel+", "+turretVel);
 			return true;
+		}
+		case 20:{ // IR sensor readings
+			for(int i=0; i<16; i++){
+				irSensors[i] = (((int)payload[2+i*2])&0x0FF)<<8 | (((int)payload[1+i*2])&0x0FF);
+//				if(i==5){
+//					System.out.println("IR: "+Integer.toHexString(payload[12]&0x0FF)+", "+Integer.toHexString(payload[11]&0x0FF));
+//				}
+			}
+			return true;
+		}
+		default:{
+			System.out.println("Unknown msg: "+payload[0]);
 		}
 		} //90de - 33,639
 		return false;

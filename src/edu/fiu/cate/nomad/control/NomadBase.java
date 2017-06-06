@@ -11,6 +11,7 @@ import comm.serial.Comm;
 import comm.serial.InputStreamListener;
 import edu.fiu.cate.nomad.config.Configurable;
 import edu.fiu.cate.nomad.config.NomadConfiguration;
+import edu.fiu.cate.nomad.gui.IRView;
 
 public class NomadBase extends Base implements Configurable, InputStreamListener{
 
@@ -21,6 +22,9 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	private int updateFrequency = 100;
 	private double updateInterval = 1.0/(double)updateFrequency;
 	
+	IRView irView = new IRView();
+	int[] map = new int[]{12, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 9};
+	
 	public NomadBase(){
 		
 		NomadConfiguration.addConfigurableClass(this);
@@ -29,6 +33,9 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 		comPort.addInputStreamListener(this);
 		new EncoderDataRequest().start();
 		new BaseUpdater().start();
+		
+		irView.setMaxDistance(18000);
+		irView.makeVisible();
 		
 	}
 
@@ -119,10 +126,33 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 		public void run(){
 			while(true){
 				try {
-					Thread.sleep(500);
+					Thread.sleep(250);
 					if(comPort.isConnected()){
 						comPort.sendByteArray(Protocol.pack(ENCODER_REQ_PACKET));
+
+						Thread.sleep(250);
+						comPort.sendByteArray(Protocol.pack(IR_REQ_PACKET));
+						for(int i=0; i<16; i++){
+							irView.setDistance(map[i], irSensors[i]);
+						}
+						
 //						com.sendByteArray(VELOCITY_REQ_PACKET, 10);
+//						msgSent = true;
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	public class IRDataRequest extends Thread{
+		public void run(){
+			while(true){
+				try {
+					Thread.sleep(500);
+					if(comPort.isConnected()){
+						comPort.sendByteArray(Protocol.pack(IR_REQ_PACKET));
 //						msgSent = true;
 					}
 				} catch (InterruptedException e) {
