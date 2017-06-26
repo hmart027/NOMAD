@@ -12,6 +12,7 @@ public class IRView extends JPanel {
 	private float maxDistance = 10;
 	private int numberOfSensors = 16;
 	private float distances[];
+	private float movementDirection = 0;
 	
 	public IRView() {
 		this.setPreferredSize(new Dimension(500, 500));
@@ -67,6 +68,8 @@ public class IRView extends JPanel {
 		g.drawLine(xC-5, yC+1, xC+5, yC+1);
 		g.drawLine(xC-5, yC-1, xC+5, yC-1);	
 		
+		g.drawLine(xC, yC, (int)(xC+r*Math.cos(movementDirection)), (int)(yC+r*Math.sin(movementDirection)));
+		
 	}
 
 	public void setDistance(int index, float distance){
@@ -81,6 +84,10 @@ public class IRView extends JPanel {
 		}
 		this.maxDistance = maxDistance;
 		repaint();
+	}
+	
+	public void setDirection(double dir){
+		movementDirection = (float) Math.toRadians(dir);
 	}
 	
 	public void makeVisible(){

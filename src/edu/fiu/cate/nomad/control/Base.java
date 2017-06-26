@@ -76,7 +76,11 @@ public class Base {
 			wheelEncoderCount 		= ((int)payload[4])<<24 | (((int)payload[3])&0x0FF)<<16 | (((int)payload[2])&0x0FF)<<8 | (((int)payload[1])&0x0FF);
 			turningEncoderCount		= ((int)payload[8])<<24 | (((int)payload[7])&0x0FF)<<16 | (((int)payload[6])&0x0FF)<<8 | ((int)payload[5])&0x0FF;
 			turretEncoderCount		= ((int)payload[12])<<24 | (((int)payload[11])&0x0FF)<<16 | (((int)payload[10])&0x0FF)<<8 | ((int)payload[9])&0x0FF;
-			System.out.println("Enc: "+wheelEncoderCount +", "+ turningEncoderCount +", "+ turretEncoderCount);
+//			System.out.println("Enc: "+wheelEncoderCount +", "+ turningEncoderCount +", "+ turretEncoderCount);
+			int max = 135700;
+			double w = 360d/(double)max;
+			System.out.println("Enc: "+ turningEncoderCount*w +", "+ turretEncoderCount*w);
+			
 			return true;
 		}
 		case 11:{		//Motors Velocities (counts/ms)
@@ -93,6 +97,10 @@ public class Base {
 //					System.out.println("IR: "+Integer.toHexString(payload[12]&0x0FF)+", "+Integer.toHexString(payload[11]&0x0FF));
 //				}
 			}
+			return true;
+		}
+		case 21:{
+			System.out.println("OBS: "+payload[1]);
 			return true;
 		}
 		default:{

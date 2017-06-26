@@ -129,13 +129,19 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 					Thread.sleep(250);
 					if(comPort.isConnected()){
 						comPort.sendByteArray(Protocol.pack(ENCODER_REQ_PACKET));
+						int max = 135700;
+						double w = 360d/(double)max;
+						System.out.println("Enc: "+ turningEncoderCount*w +", "+ turretEncoderCount*w);
+						double ang = (turningEncoderCount - turretEncoderCount)*w;
+						irView.setDirection(ang);
 
 						Thread.sleep(250);
 						comPort.sendByteArray(Protocol.pack(IR_REQ_PACKET));
+//						comPort.sendByteArray(Protocol.pack(new byte[]{21}));
 						for(int i=0; i<16; i++){
 							irView.setDistance(map[i], irSensors[i]);
 						}
-						
+												
 //						com.sendByteArray(VELOCITY_REQ_PACKET, 10);
 //						msgSent = true;
 					}
