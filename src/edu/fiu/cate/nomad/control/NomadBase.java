@@ -25,14 +25,20 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	IRView irView = new IRView();
 	int[] map = new int[]{12, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 9};
 	
+	EncoderDataRequest eData;
+	BaseUpdater updater;
+	
 	public NomadBase(){
 		
 		NomadConfiguration.addConfigurableClass(this);
 		NomadConfiguration.loadClassConfiguration(this);
 		
 		comPort.addInputStreamListener(this);
-		new EncoderDataRequest().start();
-		new BaseUpdater().start();
+		eData = new EncoderDataRequest();
+		updater = new BaseUpdater();
+		
+		eData.start();
+		updater.start();
 		
 		irView.setMaxDistance(18000);
 		irView.makeVisible();
@@ -71,6 +77,8 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	}
 	
 	public void disconnect(){
+		eData.stopThread();
+		updater.stopThread();
 		comPort.closeComm();
 	}
 	
@@ -85,9 +93,15 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	}
 	
 	public class BaseUpdater extends Thread{
+
+		volatile boolean run = true;
+		
+		public void stopThread(){
+			run = false;
+		}
 		
 		public void run(){
-			while(true){
+			while(run){
 				if(comPort.isConnected()){
 					byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
 					comPort.sendByteArray(msg);
@@ -123,8 +137,15 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	}
 
 	public class EncoderDataRequest extends Thread{
+		
+		volatile boolean run = true;
+		
+		public void stopThread(){
+			run = false;
+		}
+		
 		public void run(){
-			while(true){
+			while(run){
 				try {
 					Thread.sleep(250);
 					if(comPort.isConnected()){
@@ -153,8 +174,15 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	}
 	
 	public class IRDataRequest extends Thread{
+
+		volatile boolean run = true;
+		
+		public void stopThread(){
+			run = false;
+		}
+		
 		public void run(){
-			while(true){
+			while(run){
 				try {
 					Thread.sleep(500);
 					if(comPort.isConnected()){
