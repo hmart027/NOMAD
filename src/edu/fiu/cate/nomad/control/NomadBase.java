@@ -37,7 +37,7 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 		eData = new EncoderDataRequest();
 		updater = new BaseUpdater();
 		
-		eData.start();
+//		eData.start();
 		updater.start();
 		
 		irView.setMaxDistance(18000);
@@ -73,7 +73,9 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	
 	public boolean connectTo(String portName){
 		System.out.println("Conecting to: "+portName+": "+baudrate);
-		return comPort.getComm(portName, baudrate);
+		boolean con = comPort.getComm(portName, baudrate);
+		System.out.println(comPort.isConnected());
+		return con;
 	}
 	
 	public void disconnect(){
@@ -85,7 +87,7 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	@Override
 	public void onByteReceived(int d) {
 //		System.out.print(Integer.toHexString(d)+" ");
-//		System.out.print((char)(d));
+		System.out.print((char)(d));
 		if(protocol.parseChar((char)d)){
 //			System.out.println();
 			processPayload(protocol.getPayload());
@@ -97,7 +99,7 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 		volatile boolean run = true;
 		
 		public void stopThread(){
-			run = false;
+//			run = false;
 		}
 		
 		public void run(){

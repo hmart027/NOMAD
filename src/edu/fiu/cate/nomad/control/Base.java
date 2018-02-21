@@ -55,7 +55,7 @@ public class Base {
 	
 	long lt = 0;
 	public static boolean processPayload(byte[] payload){
-//		System.out.println("Good Msg");
+		System.out.println("Good Msg");
 //		long ct = System.currentTimeMillis();
 //		System.out.println("Dt: "+(ct-lt));
 //		lt = ct;
