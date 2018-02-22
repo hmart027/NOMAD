@@ -24,6 +24,7 @@ import com.protocol.Protocol;
 import comm.serial.Comm;
 //import comm.serial.InputStreamListener;
 import edu.fiu.cate.nomad.control.Base;
+import edu.fiu.cate.nomad.control.BaseRasp;
 import edu.fiu.cate.nomad.control.NomadBase;
 
 public class NomadGUI extends JFrame{
@@ -42,7 +43,8 @@ public class NomadGUI extends JFrame{
 //	private static int    NOMAD_BAUD = 57600;
 //	private volatile boolean msgSent = false;
 //	private Protocol protocol = new Protocol();
-	private NomadBase base = new NomadBase();
+//	private NomadBase base = new NomadBase();
+	private BaseRasp base = new BaseRasp();
 	
 	private DS4 joystick = DS4.getJoystick(10, true);
 	
@@ -93,9 +95,9 @@ public class NomadGUI extends JFrame{
 					}
 					
 					if(!excecuteAutoRutine){
-						Base.setWheelPWM((int)(-ay*100));
-						Base.setTurnPWM((int)(-ax*100));
-						Base.setTurretPWM((int)(-az*100));
+						base.setWheelPWM((int)(-ay*100));
+						base.setTurnPWM((int)(-ax*100));
+						base.setTurretPWM((int)(-az*100));
 //						if(com.isConnected()){
 //							byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
 //							com.sendByteArray(msg);
@@ -140,7 +142,7 @@ public class NomadGUI extends JFrame{
 				@Override
 				public void actionPerformed(ActionEvent e) {
 	//				com.closeComm();
-					base.disconnect();
+	//				base.disconnect();
 					for(JMenuItem i: ports.values())
 						i.setEnabled(true);
 					disconnect.setEnabled(false);
@@ -168,10 +170,10 @@ public class NomadGUI extends JFrame{
 //								new KeepAliveHeartbeat(com.getOutputStream()).start();
 //								new EncoderDataRequest().start();
 //							}	
-							base.disconnect();
-							if(base.connectTo( txt)){
-								System.out.println("Connected to: "+txt);
-							}	
+//							base.disconnect();
+//							if(base.connectTo( txt)){
+//								System.out.println("Connected to: "+txt);
+//							}	
 							((JMenuItem)e.getSource()).setEnabled(false);
 							refresh.setEnabled(false);
 							disconnect.setEnabled(true);
@@ -265,19 +267,19 @@ public class NomadGUI extends JFrame{
 				System.out.println("P: "+e.getKeyChar());
 				switch(e.getKeyChar()){
 				case 'w':
-					Base.setWheelPWM(50);
+					base.setWheelPWM(50);
 					pad.pressUP(true);
 					break;
 				case 's':
-					Base.setWheelPWM(-50);
+					base.setWheelPWM(-50);
 					pad.pressDown(true);
 					break;
 				case 'a':
-					Base.setTurnPWM(50);
+					base.setTurnPWM(50);
 					pad.pressLeft(true);
 					break;
 				case 'd':
-					Base.setTurnPWM(-50);
+					base.setTurnPWM(-50);
 					pad.pressRight(true);
 					break;
 				}
@@ -292,24 +294,24 @@ public class NomadGUI extends JFrame{
 			keyMap[e.getKeyCode()] = false;
 			switch(e.getKeyChar()){
 			case 'w':
-				Base.setWheelPWM(0);
+				base.setWheelPWM(0);
 				pad.pressUP(false);
 				break;
 			case 's':
-				Base.setWheelPWM(0);
+				base.setWheelPWM(0);
 				pad.pressDown(false);
 				break;
 			case 'a':
-				Base.setTurnPWM(0);
+				base.setTurnPWM(0);
 				pad.pressLeft(false);
 				break;
 			case 'd':
-				Base.setTurnPWM(0);
+				base.setTurnPWM(0);
 				pad.pressRight(false);
 				break;
 			default:
 				System.out.println("Default");
-				Base.setWheelPWM(0);
+				base.setWheelPWM(0);
 					
 			}
 //			if(com.isConnected()){

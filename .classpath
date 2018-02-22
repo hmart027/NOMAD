@@ -13,5 +13,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Sphinx4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/CoreNLP"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/MathTools"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/NomadRaspberryController"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
