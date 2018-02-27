@@ -11,7 +11,7 @@ import comm.serial.Comm;
 import comm.serial.InputStreamListener;
 import edu.fiu.cate.nomad.config.Configurable;
 import edu.fiu.cate.nomad.config.NomadConfiguration;
-import edu.fiu.cate.nomad.gui.IRView;
+import edu.fiu.cate.nomad.gui.SensorView;
 
 public class NomadBase extends Base implements Configurable, InputStreamListener{
 
@@ -22,7 +22,7 @@ public class NomadBase extends Base implements Configurable, InputStreamListener
 	private int updateFrequency = 100;
 	private double updateInterval = 1.0/(double)updateFrequency;
 	
-	IRView irView = new IRView();
+	SensorView irView = new SensorView();
 	int[] map = new int[]{12, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 9};
 	
 	EncoderDataRequest eData;

@@ -5,7 +5,7 @@ import java.awt.Graphics;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class IRView extends JPanel {
+public class SensorView extends JPanel {
 
 	private static final long serialVersionUID = 5972794662246986041L;
 
@@ -13,8 +13,9 @@ public class IRView extends JPanel {
 	private int numberOfSensors = 16;
 	private float distances[];
 	private float movementDirection = 0;
+	private float threshold = -1;
 	
-	public IRView() {
+	public SensorView() {
 		this.setPreferredSize(new Dimension(500, 500));
 		distances = new float[numberOfSensors];
 		for(int i=0; i<numberOfSensors; i++){
@@ -70,6 +71,16 @@ public class IRView extends JPanel {
 		
 		g.drawLine(xC, yC, (int)(xC+r*Math.cos(movementDirection)), (int)(yC+r*Math.sin(movementDirection)));
 		
+		if(threshold>=0){
+			int z = (int) (r*threshold);
+			g.drawArc(xC-z, yC-z, 2*z, 2*z, 0, 360);
+		}
+		
+	}
+	
+	public void setThreshold(float th){
+		this.threshold = th/maxDistance;
+		repaint();
 	}
 
 	public void setDistance(int index, float distance){

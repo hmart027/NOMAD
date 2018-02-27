@@ -4,12 +4,12 @@ import com.protocol.Protocol;
 
 import comm.serial.Comm;
 import comm.serial.InputStreamListener;
-import edu.fiu.cate.nomad.gui.IRView;
+import edu.fiu.cate.nomad.gui.SensorView;
 
 public class SerialComTrials {
 
 	final Protocol protocol = new Protocol();
-	IRView irView = new IRView();
+	SensorView irView = new SensorView();
 	int cSensor = 0;
 	
 	int[] map = new int[]{12, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 9};
