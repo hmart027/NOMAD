@@ -4,6 +4,7 @@ public class VisionTest {
 
 	public static void main(String[] args) {
 		new CameraControl();
+		//new StereoView();
 	}
 
 }
