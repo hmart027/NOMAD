@@ -20,7 +20,7 @@ public class BaseRasp{
 	
 	SensorView irView = null;
 	SensorView sonarView = null;
-	int[] map = new int[]{12, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 9};
+	int[] map = new int[]{8, 10, 9, 12, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7};
 	
 	public BaseRasp(){
 		try {
@@ -93,6 +93,11 @@ public class BaseRasp{
 						vals.ir = b.ir;
 						vals.us = b.us;
 						irView.setThreshold(b.obsTh);
+						System.out.println();
+						System.out.println("M: "+Math.round(b.motionHeading*1000)/1000.0);
+						System.out.println("W: "+Math.round(b.wheelHeading*1000)/1000.0);
+						System.out.println("T: "+Math.round(b.turretHeading*1000)/1000.0);
+						irView.setDirection(b.motionHeading);
 						for(int i=0; i<16; i++){
 							irView.setDistance(map[i], b.ir[i]);
 							if(sonarView!=null)

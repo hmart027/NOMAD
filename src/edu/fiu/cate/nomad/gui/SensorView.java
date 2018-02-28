@@ -69,7 +69,7 @@ public class SensorView extends JPanel {
 		g.drawLine(xC-5, yC+1, xC+5, yC+1);
 		g.drawLine(xC-5, yC-1, xC+5, yC-1);	
 		
-		g.drawLine(xC, yC, (int)(xC+r*Math.cos(movementDirection)), (int)(yC+r*Math.sin(movementDirection)));
+		g.drawLine(xC, yC, (int)(xC+r*Math.cos(movementDirection)), (int)(yC-r*Math.sin(movementDirection)));
 		
 		if(threshold>=0){
 			int z = (int) (r*threshold);
