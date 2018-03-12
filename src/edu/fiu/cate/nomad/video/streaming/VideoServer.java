@@ -12,12 +12,16 @@ import java.util.concurrent.TimeUnit;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
+import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
+import org.opencv.objdetect.Objdetect;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
@@ -58,7 +62,7 @@ public class VideoServer extends Thread{
 	volatile boolean writterReady = false;
 	volatile boolean grabFrames = false;
 	volatile boolean grabbed = false;
-	
+		
 	static{
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
@@ -138,7 +142,7 @@ public class VideoServer extends Thread{
 			if(writterReady){
 				writer.encodeVideo(0, this.imgL, System.nanoTime()-t0, TimeUnit.NANOSECONDS);
 			}
-			Rect[] faces = findFaces(frame_left);
+			Rect[] faces = findFaces(frame_left.clone());
 			MatOfRect[] eyes = findEyes(frame_left, faces);
 			BufferedImage facesImg = getBufferedImage(drawFaces(frame_left, faces, eyes));
 			
@@ -269,11 +273,16 @@ public class VideoServer extends Thread{
 	public Rect[] findFaces(Mat img){
 		Mat gray = new Mat();
 		MatOfRect faces = new MatOfRect();
+		MatOfInt rLevels = new MatOfInt();
+		MatOfDouble weights = new MatOfDouble();
 		
 		//Image to gray
 		Imgproc.cvtColor(img, gray, Imgproc.COLOR_RGB2GRAY);
 		
-		faceClass.detectMultiScale(gray, faces);
+//		faceClass.detectMultiScale3(gray, faces, rLevels, weights, 1.1, 3, 0, new Size(), new Size(), true);//broken, takes too long
+//		faceClass.detectMultiScale(gray, faces);
+		faceClass.detectMultiScale(gray, faces, 1.1, 3, 0, new Size(), new Size());
+				
 		return faces.toArray();
 	}
 	
