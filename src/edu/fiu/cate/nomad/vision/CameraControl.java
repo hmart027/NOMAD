@@ -11,12 +11,13 @@ import joystick.Gamepad;
 import joystick.PollEventListener;
 import math2.Math2;
 
-public class CameraControl {
-	DS4 controller;
-	Comm serial;
-	Protocol protocol;
+public class CameraControl extends Thread{
 	
-	Filter xFilt, yFilt, zFilt;
+	protected DS4 controller;
+	protected Comm serial;
+	protected Protocol protocol;
+	
+	protected Filter xFilt, yFilt, zFilt;
 	
 	public final float CAMERA_OFFSET_THETA 	= 90;
 	public final float CAMERA_OFFSET_PHI 	= 90;
@@ -31,30 +32,20 @@ public class CameraControl {
 	public final double MAX_PHI = 45;
 	public final double MIN_PHI = -45;
 	
+	protected int rH = 0, rV = 0, lH = 0, lV = 0;	
 	
-	public CameraControl(){
+	protected boolean useController, controlling = false;
+	
+	protected volatile boolean running = false;
 		
-		//5Hz lowpass
-		double[] b = new double[]{ 0.02008333102602092, 0.04016666205204184, 0.02008333102602092};
-		double[] a = new double[]{-1.5610153912536877, 0.6413487153577715};
-		xFilt = IIR.loadIIR(b, a);
-		yFilt = IIR.loadIIR(b, a);
-		zFilt = IIR.loadIIR(b, a);
+	public CameraControl(boolean useController){
 		
-		controller = DS4.getJoystick(100, true);
+		if(useController){
+			initController();
+		}
 		serial = new Comm();
 		protocol = new Protocol();
-		
-		controller.setPollEventListener(new PollEventListener() {
-			
-			@Override
-			public void onPoll(Gamepad gamepad) {
-				xFilt.filter(controller.getRX());
-				yFilt.filter(controller.getRY());
-				zFilt.filter(controller.getLY());
-			}
-		});
-		
+				
 		serial.addInputStreamListener(new InputStreamListener() {
 			
 			@Override
@@ -70,57 +61,78 @@ public class CameraControl {
 		System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM0");
 		serial.getComm("/dev/ttyACM0", 57600);
 		
-		double x, y, z;
-		double rX, rY, lY;
+	}
+	
+	public boolean initController(){
+
+		controller = DS4.getJoystick(100, true);
+		if(controller==null)
+			return false;
+		// 5Hz lowpass
+		double[] b = new double[] { 0.02008333102602092, 0.04016666205204184, 0.02008333102602092 };
+		double[] a = new double[] { -1.5610153912536877, 0.6413487153577715 };
+		xFilt = IIR.loadIIR(b, a);
+		yFilt = IIR.loadIIR(b, a);
+		zFilt = IIR.loadIIR(b, a);
+
+		controller.setPollEventListener(new PollEventListener() {
+			@Override
+			public void onPoll(Gamepad gamepad) {
+				xFilt.filter(controller.getRX());
+				yFilt.filter(controller.getRY());
+				zFilt.filter(controller.getLY());
+			}
+		});
 		
-		double c = 0; 
-		int dir = 1;
-		boolean automated = false;
-		while(true){
-			if(!automated){
-				x = Math.round(xFilt.getLastValue() * 100) / 100d;
-				y = Math.round(yFilt.getLastValue() * 100) / 100d;
-				z = Math.round(zFilt.getLastValue()*100)/100d;
-			}else{
-				if (dir == 1) {
-					c += 0.005;
-				} else {
-					c -= 0.005;
+		this.useController = true;
+		
+		return true;
+	}
+	
+ 	public void run(){
+		running = true;
+		while(running){
+			if(useController){
+				double x, y, z;
+				double rX, rY, lY;
+				if(controlling){
+					x = Math.round(xFilt.getLastValue() * 100) / 100d;
+					y = Math.round(yFilt.getLastValue() * 100) / 100d;
+					z = Math.round(zFilt.getLastValue()*100)/100d;
+					rX = x*MAX_THETA; // Horizontal angle
+					rY = y*MAX_PHI; // Vertical angle
+					lY = (-z+1)*6+.05; //Object distance				
+					pointToTarget((float)lY, (float)rX, (float)rY, EYE_RIGHT);
 				}
-				if (c >= 1) {
-					dir = -1;
-				}
-				if (c <= -1) {
-					dir = 1;
-				}
-				x = c;
-				y = 0;
-				z = 0;
+				if(controller.getArrows()==0.75){ //down arrow
+					controlling= !controlling;
+				}				
 			}
-			if(controller.getArrows()==0.75){ //down arrow
-				automated = !automated;
-			}
-						
-//			System.out.println("C: "+x+","+y+","+z);
-			
-			rX = x*60f; // Horizontal angle
-			rY = y*45f; // Vertical angle
-			lY = (-z+1)*6+.05; //Object distance
-//			System.out.println("A: "+rX+","+rY+","+lY);					
-			pointToTarget((float)lY, (float)rX, (float)rY, EYE_RIGHT);
+			if(serial.isConnected())
+				serial.sendByteArray(Protocol.pack(new byte[]{0, (byte) rH, (byte) rV, (byte) lH, (byte) lV}));
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		
+	}
+	
+	public void stopRunning(){
+		running = false;
 	}
 	
 	public float[] getObjectCoordinates(float r, float theta, float phi){
 		return Math2.spherical2cartesian(r, theta + CAMERA_OFFSET_THETA, phi + CAMERA_OFFSET_PHI);
 	}
 	
+	/**
+	 * Point the cameras to the target specified by the given coordinates. [0,0,0] is in between 
+	 * the two cameras at sensor level.
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
 	public void pointToTarget(float x, float y, float z){
 		float[] rEyeC = Math2.cartesian2spherical(x+CAMERA_OFFSET_X/2, y, z);
 		float[] lEyeC = Math2.cartesian2spherical(x-CAMERA_OFFSET_X/2, y, z);
@@ -129,11 +141,10 @@ public class CameraControl {
 		rEyeC[2]-= CAMERA_OFFSET_PHI;
 		lEyeC[2]-= CAMERA_OFFSET_PHI;
 		
-		int rH = (int) Math.floor(rEyeC[1]);
-		int rV = (int) Math.floor(rEyeC[2]);
-		int lH = (int) Math.floor(lEyeC[1]);
-		int lV = (int) Math.floor(lEyeC[2]);
-		serial.sendByteArray(Protocol.pack(new byte[]{0, (byte) rH, (byte) rV, (byte) lH, (byte) lV}));
+		rH = (int) Math.floor(rEyeC[1]);
+		rV = (int) Math.floor(rEyeC[2]);
+		lH = (int) Math.floor(lEyeC[1]);
+		lV = (int) Math.floor(lEyeC[2]);
 //		System.out.println("Sent: "+rH+", "+rV+",  "+lH+", "+lV+"\n");
 	}
 	

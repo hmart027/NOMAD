@@ -25,7 +25,7 @@ public class NomadMain {
 //		new NomadGUI();
 //		
 		new VideoServer().start();
-//		new CameraControl();
+//		new CameraControl(true).start();
 		
 //		new SoundTrials();
 //		new TranscriberDemo();

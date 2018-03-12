@@ -5,17 +5,14 @@ import image.tools.IViewer;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferShort;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 
-import org.opencv.calib3d.StereoBM;
 import org.opencv.calib3d.StereoSGBM;
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfInt;
@@ -26,7 +23,6 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
-import org.opencv.objdetect.Objdetect;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
@@ -120,12 +116,6 @@ public class VideoServer extends Thread{
 		this.imgL = getBufferedImage(frame_left);
 		this.imgR = getBufferedImage(frame_right);
 		this.imgArray = getImageArray(frame_left);
-		
-//		IViewer vL =  new IViewer("Server L", this.imgL);
-//		IViewer vR =  new IViewer("Server R", this.imgL);
-//		IViewer v2 =  new IViewer("Server_Out", ImageManipulation.getBufferedImage(imgArray));
-//		vL.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		vR.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		System.out.println(frame_left.width() + "x" + frame_left.height());
 		System.out.println(camera_left.get(Videoio.CAP_PROP_FPS) + " fps");
