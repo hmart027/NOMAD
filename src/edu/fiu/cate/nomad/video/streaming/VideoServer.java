@@ -1,16 +1,21 @@
 package edu.fiu.cate.nomad.video.streaming;
 
 import image.tools.ITools;
+import image.tools.IViewer;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferShort;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 
+import org.opencv.calib3d.StereoBM;
+import org.opencv.calib3d.StereoSGBM;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfInt;
@@ -56,8 +61,10 @@ public class VideoServer extends Thread{
 	
 	CascadeClassifier faceClass;
 	CascadeClassifier eyeClass;
+	StereoSGBM stereoBM; 
 	
 	StereoView gui = new StereoView();
+	IViewer dispView = new IViewer("", null);
 	
 	volatile boolean writterReady = false;
 	volatile boolean grabFrames = false;
@@ -75,6 +82,8 @@ public class VideoServer extends Thread{
 //		}
 		
 		loadCascadeClassifiers();
+		
+		stereoBM = StereoSGBM.create(32, 256, 5);
 		
 		new ClientListener().start();
 				
@@ -146,6 +155,17 @@ public class VideoServer extends Thread{
 			MatOfRect[] eyes = findEyes(frame_left, faces);
 			BufferedImage facesImg = getBufferedImage(drawFaces(frame_left, faces, eyes));
 			
+//			Mat disp = new Mat();
+//			Mat frame_left_gray = new Mat();
+//			Mat frame_right_gray = new Mat();
+//			Imgproc.cvtColor(frame_left, frame_left_gray, Imgproc.COLOR_BGR2GRAY);
+//			Imgproc.cvtColor(frame_right, frame_right_gray, Imgproc.COLOR_BGR2GRAY);
+//			stereoBM.compute(frame_left_gray, frame_right_gray, disp);
+//			Mat dispImg = new Mat();
+//			disp.convertTo(dispImg, CvType.CV_8UC1, 1.0 / 16.0);
+////			stereoBM.compute(frame_right_gray, frame_left_gray, disp);
+//			dispView.setImage(getGrayBufferedImage(dispImg));
+			
 //			if(faces.length>0){
 //				Mat face = new Mat(frame, faces[0]);
 //				v2.setImage(getBufferedImage(face));
@@ -205,6 +225,15 @@ public class VideoServer extends Thread{
 		// Create an empty image in matching format
 		BufferedImage out = new BufferedImage(img.width(), img.height(), BufferedImage.TYPE_3BYTE_BGR);
 
+		// Get the BufferedImage's backing array and copy the pixels directly into it
+		byte[] data = ((DataBufferByte) out.getRaster().getDataBuffer()).getData();
+		img.get(0, 0, data);
+		return out;
+	}
+	
+	public BufferedImage getGrayBufferedImage(Mat img){
+		// Create an empty image in matching format
+		BufferedImage out = new BufferedImage(img.width(), img.height(), BufferedImage.TYPE_BYTE_GRAY);
 		// Get the BufferedImage's backing array and copy the pixels directly into it
 		byte[] data = ((DataBufferByte) out.getRaster().getDataBuffer()).getData();
 		img.get(0, 0, data);

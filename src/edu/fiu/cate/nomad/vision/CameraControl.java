@@ -22,8 +22,9 @@ public class CameraControl {
 	public final float CAMERA_OFFSET_PHI 	= 90;
 	public final float CAMERA_OFFSET_X 		= 0.14f;//0.08
 	
-	public final int RIGHT_EYE = 0;
-	public final int LEFT_EYE = 1;
+	public final int EYE_RIGHT = 1;
+	public final int EYE_LEFT = 2;
+	public final int EYE_NONE = 0;
 	
 	public final double MAX_THETA = 60;
 	public final double MIN_THETA = -60;
@@ -71,12 +72,9 @@ public class CameraControl {
 		
 		double x, y, z;
 		double rX, rY, lY;
-		int rH, rV, lH, lV;
-		float[] rCoordiantes, lCoordinates;
 		
 		double c = 0; 
 		int dir = 1;
-		int t = 0;
 		boolean automated = false;
 		while(true){
 			if(!automated){
@@ -107,12 +105,11 @@ public class CameraControl {
 			
 			rX = x*60f; // Horizontal angle
 			rY = y*45f; // Vertical angle
-			lY = (-z+1)*2.5+.05; //Object distance
+			lY = (-z+1)*6+.05; //Object distance
 //			System.out.println("A: "+rX+","+rY+","+lY);					
-			pointToTarget((float)lY, (float)rX, (float)rY, LEFT_EYE);
+			pointToTarget((float)lY, (float)rX, (float)rY, EYE_RIGHT);
 			try {
 				Thread.sleep(10);
-				t++;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -137,8 +134,7 @@ public class CameraControl {
 		int lH = (int) Math.floor(lEyeC[1]);
 		int lV = (int) Math.floor(lEyeC[2]);
 		serial.sendByteArray(Protocol.pack(new byte[]{0, (byte) rH, (byte) rV, (byte) lH, (byte) lV}));
-		System.out.println("Sent: "+rH+", "+rV+",  "+lH+", "+lV+"\n");
-		System.out.println();
+//		System.out.println("Sent: "+rH+", "+rV+",  "+lH+", "+lV+"\n");
 	}
 	
 	public boolean pointToTarget(float r, float theta, float phi, int eye){
@@ -160,10 +156,12 @@ public class CameraControl {
 		}
 		float[] c = getObjectCoordinates(r, theta, phi); // realWorld coordinates
 		switch(eye){
-		case RIGHT_EYE:
+		case EYE_NONE:
+			break;
+		case EYE_RIGHT:
 			c[0] -= CAMERA_OFFSET_X/2;
 			break;
-		case LEFT_EYE:
+		case EYE_LEFT:
 			c[0] += CAMERA_OFFSET_X/2;
 			break;
 		default:
