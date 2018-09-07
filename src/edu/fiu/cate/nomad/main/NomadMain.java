@@ -22,9 +22,9 @@ public class NomadMain {
 
 	NomadMain(){
 		NomadConfiguration.loadConfiguration();
-//		new NomadGUI();
-//		
-		new VideoServer().start();
+		new NomadGUI();
+		
+//		new VideoServer().start();
 //		new CameraControl(true).start();
 		
 //		new SoundTrials();

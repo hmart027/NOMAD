@@ -20,7 +20,7 @@ public class BaseRasp{
 	
 	SensorView irView = null;
 	SensorView sonarView = null;
-	int[] map = new int[]{8, 10, 9, 12, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7};
+	int[] map = new int[]{9, 8, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 7, 6};//{8, 10, 9, 12, 11, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7};
 	
 	public BaseRasp(){
 		try {
