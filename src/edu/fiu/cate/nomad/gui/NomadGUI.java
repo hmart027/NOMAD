@@ -46,7 +46,7 @@ public class NomadGUI extends JFrame{
 //	private NomadBase base = new NomadBase();
 	private BaseRasp base = new BaseRasp();
 	
-	private DS4 joystick = DS4.getJoystick(10, true);
+	private DS4 joystick = DS4.getJoystick(0, 10, true);
 	
 	public boolean excecuteAutoRutine = false;
 	
@@ -87,8 +87,8 @@ public class NomadGUI extends JFrame{
 					double ax = joystick.getLX();
 					double ay = joystick.getLY();
 					double az = joystick.getRX();	
-//					System.out.println("AX: "+ax);
-//					System.out.println("Rot: "+az);
+					System.out.println("AX: "+ax);
+					//System.out.println("Rot: "+az);
 	
 					if(joystick.isTriggerPressed()){
 						excecuteAutoRutine = false;
