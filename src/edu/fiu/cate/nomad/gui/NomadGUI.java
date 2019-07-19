@@ -97,7 +97,8 @@ public class NomadGUI extends JFrame{
 					if(!excecuteAutoRutine){
 						base.setWheelPWM((int)(-ay*100));
 						base.setTurnPWM((int)(-ax*100));
-						base.setTurretPWM((int)(-az*100));
+						//base.setTurretPWM((int)(-az*100));
+						base.setTurretPWM(0);
 //						if(com.isConnected()){
 //							byte[] msg = Protocol.pack(Base.getBaseMotorsPWMMessage());
 //							com.sendByteArray(msg);
