@@ -46,7 +46,7 @@ public class NomadGUI extends JFrame{
 //	private NomadBase base = new NomadBase();
 	private BaseRasp base = new BaseRasp();
 	
-	private DS4 joystick = DS4.getJoystick(0, 10, true);
+	private DS4 joystick = DS4.getJoystick( 10, true);
 	
 	public boolean excecuteAutoRutine = false;
 	
