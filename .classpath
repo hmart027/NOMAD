@@ -14,5 +14,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/CoreNLP"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/MathTools"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/NomadRaspberryController"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/VideoStreaming"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

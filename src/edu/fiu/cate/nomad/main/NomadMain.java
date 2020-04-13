@@ -14,7 +14,6 @@ import edu.fiu.cate.nomad.control.NomadBase;
 import edu.fiu.cate.nomad.control.SerialComTrials;
 import edu.fiu.cate.nomad.gui.NomadGUI;
 import edu.fiu.cate.nomad.video.streaming.VideoServer;
-import edu.fiu.cate.nomad.vision.CameraControl;
 import edu.stanford.nlp.pipeline.CoreNLPProtos;
 
 @SuppressWarnings("unused")
