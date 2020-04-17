@@ -107,7 +107,11 @@ public class NOMADAudioClient extends Thread {
 				} catch(StreamCorruptedException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
-					e.printStackTrace();
+					if(e.getClass().equals(java.io.EOFException.class)) {
+						disconnect();
+					}else {
+						e.printStackTrace();
+					}
 				}
 			}
 		}

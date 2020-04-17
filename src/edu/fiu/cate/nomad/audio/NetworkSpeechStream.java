@@ -63,8 +63,8 @@ public class NetworkSpeechStream extends InputStream implements AudioFrameListen
 					int ch = (((int)m.ch[i+0])<<8 | (m.ch[i+1] & 0x0FF) )*2;
 //					buffer[writePointer]   = m.ch[i+1];
 //					buffer[writePointer+1] = m.ch[i];
-					buffer[writePointer]   = (byte) (ch & 0x0FF);
-					buffer[writePointer+1] = (byte) ((ch>>8) & 0x0FF);
+					buffer[writePointer]   = (byte) ch;
+					buffer[writePointer+1] = (byte) (ch>>8);
 					writePointer+=2;
 					if(writePointer==bufferSize)
 						writePointer = 0;
