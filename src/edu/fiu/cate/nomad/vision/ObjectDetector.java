@@ -5,45 +5,22 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import org.opencv.core.Core;
-
+import com.martindynamics.py4j.test.ObjectDetectionResults;
 import com.martindynamics.video.stream.VideoPacket;
-import com.martindynamics.video.stream.VideoStream;
-import com.martindynamics.video.stream.codec.VideoFrame;
 
-public class NOMADVideoClient extends Thread {
-	
+public class ObjectDetector extends Thread implements VideoPacketListener{
+
 	private String ip = "";
-	private int port = 1553;
+	private int port = 1586;
 	private Socket sock;
 	private ObjectInputStream inStream;
 	private ObjectOutputStream outStream;
 	
-	private VideoStream videoStream;
-	
-	private ArrayList<FrameListener> listeners = new ArrayList<>();
-	private ArrayList<VideoPacketListener> videoListeners = new ArrayList<>();
-	
-	private NOMADVideoClient(String ip, int port) {
-		this.ip   = ip;
-		this.port = port;
-		videoStream = VideoStream.createVideoStream();
-	}
-	
-	public static NOMADVideoClient getInstance(String ip, int port) {
-		try {
-			System.loadLibrary(Core.NATIVE_LIBRARY_NAME); 
-			System.loadLibrary("VideoStreaming");
-		} catch (UnsatisfiedLinkError | SecurityException e) {
-			System.out.println("unable to load VideoStreaming");
-			e.printStackTrace();
-			return null;
-		}
-		return new NOMADVideoClient( ip, port);
-	}
+	public ArrayList<ObjectDetectorListener> listeners = new ArrayList<>();
 	
 	public synchronized boolean connectToServer(String ip, int port) {
 		this.ip   = ip;
@@ -53,9 +30,9 @@ public class NOMADVideoClient extends Thread {
 	
 	public synchronized boolean attemptConnection() {
 		try {
-			System.out.println("Attempting video connection to "+ip+": "+port);
+			System.out.println("Attempting ObjectDetector connection to "+ip+": "+port);
 			sock = new Socket(ip, port);
-			System.out.println("Video client connected!");
+			System.out.println("ObjectDetector connected!");
 			outStream = new ObjectOutputStream(sock.getOutputStream());
 			inStream  = new ObjectInputStream(sock.getInputStream());
 			return true;
@@ -63,7 +40,7 @@ public class NOMADVideoClient extends Thread {
 			e.printStackTrace();
 		} catch (IOException e) {
 			if(e.getMessage().contains("Connection refused")) {
-				System.out.println("Connection refused");
+				System.out.println("ObjectDetector Connection refused");
 			}else {
 				e.printStackTrace();
 			}
@@ -88,13 +65,29 @@ public class NOMADVideoClient extends Thread {
 			}
 		}
 	}
-	
-	public void addFrameListener(FrameListener l) {
-		this.listeners.add(l);
+
+	public synchronized boolean sendVideoPacket(VideoPacket pkt) {
+		if(outStream!=null){
+			synchronized (outStream) {
+				try {
+					outStream.reset();
+					outStream.writeObject(pkt);
+					outStream.flush();
+					return true;
+				} catch (IOException e) {
+					if(e.getClass().equals(SocketException.class)) {
+						disconnect();
+					}else {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		return false;
 	}
 	
-	public void addVideoPacketListener(VideoPacketListener l) {
-		this.videoListeners.add(l);
+	public void addObjectDetectorListener(ObjectDetectorListener l) {
+		listeners.add(l);
 	}
 	
 	public void run() {
@@ -113,31 +106,30 @@ public class NOMADVideoClient extends Thread {
 					synchronized (inStream) {
 						obj = inStream.readObject();
 					}
-					if(obj.getClass().equals(VideoPacket.class)){
-						VideoPacket pkt = (VideoPacket) obj;
-						VideoFrame frame = videoStream.decodepacket(pkt);
-						if(frame!=null) {
-							for(FrameListener f: listeners) {
-								f.onFrameReceived(new FrameEvent(pkt.channel, frame));
-							}
+					if(obj!=null) {
+						if(obj.getClass().equals(ObjectDetectionResults.class)) {
+							for(ObjectDetectorListener l: listeners)
+								l.onObjectDetection((ObjectDetectionResults)obj);
+						}else {
+							System.out.println("ObjectDetector received object: "+obj.getClass());
 						}
-						if(pkt!=null) {
-							for(VideoPacketListener pckL: videoListeners)
-								pckL.onPacketReceived(pkt);
-						}
-					}else {
-						System.out.println(obj.getClass());
 					}
 					
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch(StreamCorruptedException e) {
-					System.out.println("Called defaultReadObject");
+					System.out.println("ObjectDetector stream corrupted.");
 				} catch (IOException e) {
-					e.printStackTrace();
+					disconnect();
 				}
 			}
 		}
 	}
 
+	
+	@Override
+	public void onPacketReceived(VideoPacket pck) {
+		if(pck.channel==0)
+			sendVideoPacket(pck);
+	}
 }

@@ -25,13 +25,15 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
+import com.martindynamics.py4j.test.ImageObject;
+import com.martindynamics.py4j.test.ObjectDetectionResults;
 import com.martindynamics.video.VideoTools;
 
 import edu.fiu.cate.nomad.gui.binocular.StereoView;
 import edu.fiu.cate.nomad.vision.NOMADVideoClient;
 import image.tools.ITools;
 
-public class VisionTest extends Thread{
+public class VisionTest extends Thread implements ObjectDetectorListener{
 	
 	private String ip = "192.168.0.119";
 	
@@ -45,9 +47,10 @@ public class VisionTest extends Thread{
 	double xFovScale, yFovScale;
 
 	boolean initialized = false;
-	boolean newLeftFrame = false, newRightFrame = false;
-	Mat frame_left, frame_right;
-	BufferedImage imgL, imgR;
+	volatile boolean newLeftFrame = false;
+	volatile boolean newRightFrame = false;
+	volatile Mat frame_left, frame_right;
+	volatile BufferedImage imgL, imgR;
 	byte[][][] imgArray;
 	CascadeClassifier faceClass, eyeClass;
 	StereoSGBM stereoBM;
@@ -56,6 +59,7 @@ public class VisionTest extends Thread{
 	double x, y, z;
 
 	ArrayList<FaceEntry> faceList = new ArrayList<>();
+	volatile ObjectDetectionResults objRes = null;
 	
 	StereoView view;
 	ServerClient controller;
@@ -64,9 +68,10 @@ public class VisionTest extends Thread{
 	static{
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
+
+	private final Object monitor = new Object();
 	
 	public VisionTest() {
-		VisionTest superObj = this;
 		//new CameraControl(true);
 		// new StereoView();
 		
@@ -75,10 +80,16 @@ public class VisionTest extends Thread{
 		
 		eyesController = new BinocularCameraControl();
 
-		view = new StereoView();
+		view = new StereoView();	
+		
+		ObjectDetector objDetector = new ObjectDetector();
+		objDetector.connectToServer("10.102.208.104", 1586);
+		objDetector.addObjectDetectorListener(this);
+		objDetector.start();
 
 		NOMADVideoClient client = NOMADVideoClient.getInstance(ip, 1553);
 		if (client != null) {
+			client.addVideoPacketListener(objDetector);
 			client.addFrameListener(new FrameListener() {
 				@Override
 				public void onFrameReceived(FrameEvent e) {
@@ -86,16 +97,17 @@ public class VisionTest extends Thread{
 							BufferedImage.TYPE_3BYTE_BGR);
 					byte[] imgData = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
 					VideoTools.yuv4202bgr(e.frame.getData(), imgData, e.frame.getHeight(), e.frame.getWidth());
-					if (e.chanel == 0) {
+					//System.out.println("frame: "+e.chanel+", "+newRightFrame+", "+newLeftFrame);
+					if (e.chanel == 0 && !newRightFrame) {
 						frame_right   = bufferedImageToMat(img);
 						newRightFrame = true;
 					}
-					if (e.chanel == 1) {
+					if (e.chanel == 1 && !newLeftFrame) {
 						frame_left   = bufferedImageToMat(img);
 						newLeftFrame = true;
 					}
-					synchronized (superObj) {
-						superObj.notifyAll();
+					synchronized (monitor) {
+						monitor.notifyAll();
 					}
 				}
 			});
@@ -104,111 +116,134 @@ public class VisionTest extends Thread{
 
 		controller = new ServerClient();
 		controller.start();
-				
 	}
 	
 	@Override
-	public void run() {
+	public void onObjectDetection(ObjectDetectionResults res) {
+		objRes = res;
+	}
+	
+	@Override
+	public void run() {		
 		long lT = System.currentTimeMillis();
 		while(true) {
 			try {
-				synchronized (this) {
-					this.wait();
+				synchronized (monitor) {
+					while (!newRightFrame || !newLeftFrame) {
+						monitor.wait();
+					}
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 			if(newRightFrame) {
-				if(!initialized) {
-					frameW = frame_right.width();
-					frameH = frame_right.height();
-					frameXC = frameW/2;
-					frameYC = frameH/2;
-					xFovScale = psEyeHorizontalFOV/(double)frameW;
-					yFovScale = psEyeVerticalFOV/(double)frameH;
-					initialized = true;
-				}
 				
-				Rect[] faces = findFaces(frame_right.clone());
-				MatOfRect[] eyes = findEyes(frame_right, faces);
-				BufferedImage facesImg = getBufferedImage(frame_right);
-				
-				long t = System.currentTimeMillis();
-				
-				if(faces.length>0){
-					System.out.println("Faces: "+faces.length);
-					for(Rect face: faces){
-						double xC = (-frameXC + face.width/2.0  + face.x)*xFovScale + cameraX;
-						double yC = (frameYC - face.height/2.0 - face.y)*yFovScale +cameraY;
-						double w  = face.width*xFovScale;
-						double h  = face.height*yFovScale;
-						//System.out.println("\tFace: "+(xC)+", "+(yC));
-						FaceEntry faceE = new FaceEntry(xC, yC, w, h);
-						if(faceList.contains(faceE)){
-							faceE = faceList.get(faceList.indexOf(faceE));
-							faceE.x = xC;
-							faceE.y = yC;
-							faceE.w = w;
-							faceE.h = h;
-							faceE.lastSeen = t;
-						}else{
-							faceE.firstSeen = t;
-							faceE.lastSeen = t;
-							faceList.add(faceE);
-						}
+				if(objRes!=null)
+					for(ImageObject obj: objRes.objects) {
+						Imgproc.rectangle(frame_right, 
+								new Point(obj.coordinates[1], obj.coordinates[0]),  
+								new Point(obj.coordinates[3], obj.coordinates[2]), 
+								new Scalar(0,0,255));
+						Imgproc.putText(frame_right, obj.label+": "+obj.score, 
+								new Point(obj.coordinates[1], obj.coordinates[2]), 5, 1.0, 
+								new Scalar(0,0,255));
 					}
-					Collections.sort(faceList);
-				}
-
-				double tX, tY, tD;
-				for (int i = 0; i < faceList.size(); i++) {
-					FaceEntry f = faceList.get(i);
-					if ((t - f.lastSeen) > 3000) { // remove face If not seen in last 1 seconds.
-						faceList.remove(i);
-						i--;
-					} else {
-						facesImg = getBufferedImage(drawFace(frame_right, f, i));
-						tX = f.x;
-						tY = f.y;
-						System.out.println("\tFace: " + Math.round(tX) + ", " + Math.round(tY) + ", area: " +
-						Math.round(f.w*f.h)+ ", age: "	+ (f.lastSeen - f.firstSeen));
-					}
-				}
-				System.out.println("   Left: " + faceList.size());
-
-				if (faceList.size() > 0) {
-					tX = faceList.get(0).x;
-					tY = faceList.get(0).y;
-					tD = 0.15/Math.tan(Math.toRadians(faceList.get(0).w/2));
-				} else {
-					tX = 0;
-					tY = 0;
-					tD = 100;
-				}
-
-				t = System.currentTimeMillis();
-				cameraX = (float) rPID.run(tX - cameraX, (t - lT) / 1000f);
-				cameraY = (float) lPID.run(tY - cameraY, (t - lT) / 1000f);
-				lT = t;
-				if (cameraX > 90)
-					cameraX = 90;
-				if (cameraX < -90)
-					cameraX = -90;
-				if (cameraY > 90)
-					cameraY = 90;
-				if (cameraY < -90)
-					cameraY = -90;
-				System.out.println("\tCam:  " + cameraX + ", " + cameraY);
-				eyesController.setFocalPoint(eyesController.EYE_RIGHT, cameraX, cameraY, (float)tD);
-				controller.sendObject(eyesController.getMessage());
 				
-				view.setRightImage(facesImg);
+				view.setRightImage(getBufferedImage(frame_right));
+				newRightFrame = false;
+				
+//				if(!initialized) {
+//					frameW = frame_right.width();
+//					frameH = frame_right.height();
+//					frameXC = frameW/2;
+//					frameYC = frameH/2;
+//					xFovScale = psEyeHorizontalFOV/(double)frameW;
+//					yFovScale = psEyeVerticalFOV/(double)frameH;
+//					initialized = true;
+//				}
+//				
+//				Rect[] faces = findFaces(frame_right.clone());
+//				MatOfRect[] eyes = findEyes(frame_right, faces);
+//				BufferedImage facesImg = getBufferedImage(frame_right);
+//				
+//				long t = System.currentTimeMillis();
+//				
+//				if(faces.length>0){
+//					System.out.println("Faces: "+faces.length);
+//					for(Rect face: faces){
+//						double xC = (-frameXC + face.width/2.0  + face.x)*xFovScale + cameraX;
+//						double yC = (frameYC - face.height/2.0 - face.y)*yFovScale +cameraY;
+//						double w  = face.width*xFovScale;
+//						double h  = face.height*yFovScale;
+//						//System.out.println("\tFace: "+(xC)+", "+(yC));
+//						FaceEntry faceE = new FaceEntry(xC, yC, w, h);
+//						if(faceList.contains(faceE)){
+//							faceE = faceList.get(faceList.indexOf(faceE));
+//							faceE.x = xC;
+//							faceE.y = yC;
+//							faceE.w = w;
+//							faceE.h = h;
+//							faceE.lastSeen = t;
+//						}else{
+//							faceE.firstSeen = t;
+//							faceE.lastSeen = t;
+//							faceList.add(faceE);
+//						}
+//					}
+//					Collections.sort(faceList);
+//				}
+	//
+//				double tX, tY, tD;
+//				for (int i = 0; i < faceList.size(); i++) {
+//					FaceEntry f = faceList.get(i);
+//					if ((t - f.lastSeen) > 3000) { // remove face If not seen in last 1 seconds.
+//						faceList.remove(i);
+//						i--;
+//					} else {
+//						facesImg = getBufferedImage(drawFace(frame_right, f, i));
+//						tX = f.x;
+//						tY = f.y;
+//						System.out.println("\tFace: " + Math.round(tX) + ", " + Math.round(tY) + ", area: " +
+//						Math.round(f.w*f.h)+ ", age: "	+ (f.lastSeen - f.firstSeen));
+//					}
+//				}
+//				System.out.println("   Left: " + faceList.size());
+	//
+//				if (faceList.size() > 0) {
+//					tX = faceList.get(0).x;
+//					tY = faceList.get(0).y;
+//					tD = 0.15/Math.tan(Math.toRadians(faceList.get(0).w/2));
+//				} else {
+//					tX = 0;
+//					tY = 0;
+//					tD = 100;
+//				}
+	//
+//				t = System.currentTimeMillis();
+//				cameraX = (float) rPID.run(tX - cameraX, (t - lT) / 1000f);
+//				cameraY = (float) lPID.run(tY - cameraY, (t - lT) / 1000f);
+//				lT = t;
+//				if (cameraX > 90)
+//					cameraX = 90;
+//				if (cameraX < -90)
+//					cameraX = -90;
+//				if (cameraY > 90)
+//					cameraY = 90;
+//				if (cameraY < -90)
+//					cameraY = -90;
+//				System.out.println("\tCam:  " + cameraX + ", " + cameraY);
+//				eyesController.setFocalPoint(eyesController.EYE_RIGHT, cameraX, cameraY, (float)tD);
+//				controller.sendObject(eyesController.getMessage());
+//				
+//				view.setRightImage(facesImg);
 			}
 			if(newLeftFrame) {
 				view.setLeftImage(getBufferedImage(frame_left));
+				newLeftFrame = false;
 			}
 		}
 	}
+	
 	
 	public static Mat bufferedImageToMat(BufferedImage bi) {
 		Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
@@ -462,23 +497,7 @@ public class VisionTest extends Thread{
 		private ObjectInputStream inStream;
 		private ObjectOutputStream outStream;
 		
-		public ServerClient() {
-			try {
-				System.out.println("Attempting server connection to "+ip+": "+port);
-				sock = new Socket(ip, port);
-				System.out.println("Server client connected!");
-				outStream = new ObjectOutputStream(sock.getOutputStream());
-				inStream  = new ObjectInputStream(sock.getInputStream());
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				if(e.getMessage().contains("Connection refused")) {
-					System.out.println("Connection refused");
-				}else {
-					e.printStackTrace();
-				}
-			}
-		}
+		public ServerClient() {}
 		
 		public synchronized boolean sendObject(Object o) {
 			if(outStream!=null) {
@@ -496,6 +515,23 @@ public class VisionTest extends Thread{
 		
 		@Override
 		public void run() {
+
+			try {
+				System.out.println("Attempting server connection to "+ip+": "+port);
+				sock = new Socket(ip, port);
+				System.out.println("Server client connected!");
+				outStream = new ObjectOutputStream(sock.getOutputStream());
+				inStream  = new ObjectInputStream(sock.getInputStream());
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				if(e.getMessage().contains("Connection refused")) {
+					System.out.println("Connection refused");
+				}else {
+					e.printStackTrace();
+				}
+			}
+			
 			while(true){
 				if(inStream==null || outStream==null){
 					try {
