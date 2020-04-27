@@ -9,6 +9,7 @@ import java.io.StreamCorruptedException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.opencv.calib3d.StereoSGBM;
@@ -28,6 +29,7 @@ import org.opencv.objdetect.CascadeClassifier;
 import com.martindynamics.py4j.test.ImageObject;
 import com.martindynamics.py4j.test.ObjectDetectionResults;
 import com.martindynamics.video.VideoTools;
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 import edu.fiu.cate.nomad.gui.binocular.StereoView;
 import edu.fiu.cate.nomad.vision.NOMADVideoClient;
@@ -64,6 +66,22 @@ public class VisionTest extends Thread implements ObjectDetectorListener{
 	StereoView view;
 	ServerClient controller;
 	BinocularCameraControl eyesController;
+	
+	ArrayList<String> labels = new ArrayList<>(Arrays.asList(new String[] {"BG", "person", "bicycle", "car", "motorcycle", "airplane",
+	                                "bus", "train", "truck", "boat", "traffic light",
+	                                "fire hydrant", "stop sign", "parking meter", "bench", "bird",
+	                                "cat", "dog", "horse", "sheep", "cow", "elephant", "bear",
+	                                "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie",
+	                                "suitcase", "frisbee", "skis", "snowboard", "sports ball",
+	                                "kite", "baseball bat", "baseball glove", "skateboard",
+	                                "surfboard", "tennis racket", "bottle", "wine glass", "cup",
+	                                "fork", "knife", "spoon", "bowl", "banana", "apple",
+	                                "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza",
+	                                "donut", "cake", "chair", "couch", "potted plant", "bed",
+	                                "dining table", "toilet", "tv", "laptop", "mouse", "remote",
+	                                "keyboard", "cell phone", "microwave", "oven", "toaster",
+	                                "sink", "refrigerator", "book", "clock", "vase", "scissors",
+	                                "teddy bear", "hair drier", "toothbrush"}));
 		
 	static{
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -125,6 +143,11 @@ public class VisionTest extends Thread implements ObjectDetectorListener{
 	
 	@Override
 	public void run() {		
+		ArrayList<Scalar> colors = getRandomColors(labels.size());
+		for(int i=0; i<labels.size(); i++) {
+			Scalar c = colors.get(i);
+			System.out.println(labels.get(i)+": "+c.val[0]+", "+c.val[1]+", "+c.val[2]);
+		}
 		long lT = System.currentTimeMillis();
 		while(true) {
 			try {
@@ -140,13 +163,14 @@ public class VisionTest extends Thread implements ObjectDetectorListener{
 				
 				if(objRes!=null)
 					for(ImageObject obj: objRes.objects) {
+						Scalar color = colors.get(labels.indexOf(obj.label));
 						Imgproc.rectangle(frame_right, 
 								new Point(obj.coordinates[1], obj.coordinates[0]),  
 								new Point(obj.coordinates[3], obj.coordinates[2]), 
-								new Scalar(0,0,255));
+								color);
 						Imgproc.putText(frame_right, obj.label+": "+obj.score, 
 								new Point(obj.coordinates[1], obj.coordinates[2]), 5, 1.0, 
-								new Scalar(0,0,255));
+								color);
 					}
 				
 				view.setRightImage(getBufferedImage(frame_right));
@@ -244,6 +268,49 @@ public class VisionTest extends Thread implements ObjectDetectorListener{
 		}
 	}
 	
+	public ArrayList<Scalar> getRandomColors(int N){
+		ArrayList<Scalar> colors = new ArrayList<>();
+		double d = 360d/(double)N;
+		for(int i=0; i<N; i++) {
+			int[] rgb = getRGBfromHSV(i*d, 1, 1);
+			colors.add(new Scalar(rgb[0], rgb[1], rgb[2]));
+		}
+		//Collections.shuffle(colors);
+		return colors;
+	}
+	
+	public int[] getRGBfromHSV(double h, double s, double v) {
+		double c = v*s;
+		double x = c*(1-Math.abs((h/60d)%2-1));
+		double m = v-c;
+		double rp=0, gp=0, bp=0;
+		if(0<=h && h<60) {
+			rp = c;
+			gp = x;
+			bp = 0;
+		}else if(60<=h && h<120) {
+			rp = x;
+			gp = c;
+			bp = 0;
+		}else if(120<=h && h<180) {
+			rp = 0;
+			gp = c;
+			bp = x;
+		}else if(180<=h && h<240) {
+			rp = 0;
+			gp = x;
+			bp = c;
+		}else if(240<=h && h<300) {
+			rp = x;
+			gp = 0;
+			bp = c;
+		}else if(300<=h && h<360) {
+			rp = c;
+			gp = 0;
+			bp = x;
+		}
+		return new int[] {(int)((rp+m)*255),(int)((gp+m)*255),(int)((bp+m)*255)};
+	}
 	
 	public static Mat bufferedImageToMat(BufferedImage bi) {
 		Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);

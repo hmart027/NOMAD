@@ -21,9 +21,17 @@ public class ImagePanel extends JPanel {
 	}
 	
 	public void setImage(BufferedImage img){
-		this.img = img;
-		setImgDims();
-		repaint();
+		if(this.img!=null) {
+			synchronized (this.img) {
+				this.img = img;
+				setImgDims();
+				repaint();
+			}
+		}else {
+			this.img = img;
+			setImgDims();
+			repaint();
+		}
 	}
 	
 	private void setImgDims(){
@@ -63,10 +71,12 @@ public class ImagePanel extends JPanel {
 		g2.setColor(java.awt.Color.BLACK);
 		g2.fillRect(0, 0, dim.width, dim.height);
 		if(img!=null){
-			Graphics imgG = img.getGraphics();
-			imgG.setColor(java.awt.Color.GREEN);
-			imgG.drawRect(img.getWidth()/2-10, img.getHeight()/2-10, 20, 20);
-			g.drawImage(img, xOff, yOff, imgW, imgH, null);
+			synchronized (this.img) {
+				Graphics imgG = img.getGraphics();
+				imgG.setColor(java.awt.Color.GREEN);
+				imgG.drawRect(img.getWidth()/2-10, img.getHeight()/2-10, 20, 20);
+				g.drawImage(img, xOff, yOff, imgW, imgH, null);
+			}
 		}
 	}
 }
