@@ -37,7 +37,7 @@ import image.tools.ITools;
 
 public class VisionTest extends Thread implements ObjectDetectorListener{
 	
-	private String ip = "192.168.0.119";
+	private String ip = "192.168.1.198";
 	
 	PID rPID = new PID(0.7, 0.15, 0.01);
 	PID lPID = new PID(0.7, 0.15, 0.01);
@@ -160,7 +160,15 @@ public class VisionTest extends Thread implements ObjectDetectorListener{
 				e.printStackTrace();
 			}
 			if(newRightFrame) {
-				
+				if(!initialized) {
+					frameW = frame_right.width();
+					frameH = frame_right.height();
+					frameXC = frameW/2;
+					frameYC = frameH/2;
+					xFovScale = psEyeHorizontalFOV/(double)frameW;
+					yFovScale = psEyeVerticalFOV/(double)frameH;
+					initialized = true;
+				}
 				if(objRes!=null)
 					for(ImageObject obj: objRes.objects) {
 						Scalar color = colors.get(labels.indexOf(obj.label));
@@ -171,94 +179,92 @@ public class VisionTest extends Thread implements ObjectDetectorListener{
 						Imgproc.putText(frame_right, obj.label+": "+obj.score, 
 								new Point(obj.coordinates[1], obj.coordinates[2]), 5, 1.0, 
 								color);
+//						if(obj.label.equals("person")) {
+//							double xc = ( (obj.coordinates[1]+obj.coordinates[3])/2 - frameXC)*xFovScale + cameraX;
+//							double yc = (-(obj.coordinates[0]+obj.coordinates[2])/2 + frameYC)*yFovScale + cameraY;
+//							double w  = (obj.coordinates[1]+obj.coordinates[3])/2*xFovScale;
+//							double h  = (obj.coordinates[0]+obj.coordinates[2])/2*yFovScale;
+//							double tD = 0.15/Math.tan(Math.toRadians(w/2));
+//							eyesController.setFocalPoint(BinocularCameraControl.EYE_RIGHT, cameraX, cameraY, (float)tD);
+//						}
 					}
 				
 				view.setRightImage(getBufferedImage(frame_right));
 				newRightFrame = false;
 				
-//				if(!initialized) {
-//					frameW = frame_right.width();
-//					frameH = frame_right.height();
-//					frameXC = frameW/2;
-//					frameYC = frameH/2;
-//					xFovScale = psEyeHorizontalFOV/(double)frameW;
-//					yFovScale = psEyeVerticalFOV/(double)frameH;
-//					initialized = true;
-//				}
-//				
-//				Rect[] faces = findFaces(frame_right.clone());
-//				MatOfRect[] eyes = findEyes(frame_right, faces);
-//				BufferedImage facesImg = getBufferedImage(frame_right);
-//				
-//				long t = System.currentTimeMillis();
-//				
-//				if(faces.length>0){
-//					System.out.println("Faces: "+faces.length);
-//					for(Rect face: faces){
-//						double xC = (-frameXC + face.width/2.0  + face.x)*xFovScale + cameraX;
-//						double yC = (frameYC - face.height/2.0 - face.y)*yFovScale +cameraY;
-//						double w  = face.width*xFovScale;
-//						double h  = face.height*yFovScale;
-//						//System.out.println("\tFace: "+(xC)+", "+(yC));
-//						FaceEntry faceE = new FaceEntry(xC, yC, w, h);
-//						if(faceList.contains(faceE)){
-//							faceE = faceList.get(faceList.indexOf(faceE));
-//							faceE.x = xC;
-//							faceE.y = yC;
-//							faceE.w = w;
-//							faceE.h = h;
-//							faceE.lastSeen = t;
-//						}else{
-//							faceE.firstSeen = t;
-//							faceE.lastSeen = t;
-//							faceList.add(faceE);
-//						}
-//					}
-//					Collections.sort(faceList);
-//				}
-	//
-//				double tX, tY, tD;
-//				for (int i = 0; i < faceList.size(); i++) {
-//					FaceEntry f = faceList.get(i);
-//					if ((t - f.lastSeen) > 3000) { // remove face If not seen in last 1 seconds.
-//						faceList.remove(i);
-//						i--;
-//					} else {
-//						facesImg = getBufferedImage(drawFace(frame_right, f, i));
-//						tX = f.x;
-//						tY = f.y;
-//						System.out.println("\tFace: " + Math.round(tX) + ", " + Math.round(tY) + ", area: " +
-//						Math.round(f.w*f.h)+ ", age: "	+ (f.lastSeen - f.firstSeen));
-//					}
-//				}
-//				System.out.println("   Left: " + faceList.size());
-	//
-//				if (faceList.size() > 0) {
-//					tX = faceList.get(0).x;
-//					tY = faceList.get(0).y;
-//					tD = 0.15/Math.tan(Math.toRadians(faceList.get(0).w/2));
-//				} else {
-//					tX = 0;
-//					tY = 0;
-//					tD = 100;
-//				}
-	//
-//				t = System.currentTimeMillis();
-//				cameraX = (float) rPID.run(tX - cameraX, (t - lT) / 1000f);
-//				cameraY = (float) lPID.run(tY - cameraY, (t - lT) / 1000f);
-//				lT = t;
-//				if (cameraX > 90)
-//					cameraX = 90;
-//				if (cameraX < -90)
-//					cameraX = -90;
-//				if (cameraY > 90)
-//					cameraY = 90;
-//				if (cameraY < -90)
-//					cameraY = -90;
-//				System.out.println("\tCam:  " + cameraX + ", " + cameraY);
-//				eyesController.setFocalPoint(eyesController.EYE_RIGHT, cameraX, cameraY, (float)tD);
-//				controller.sendObject(eyesController.getMessage());
-//				
+				Rect[] faces = findFaces(frame_right.clone());
+				MatOfRect[] eyes = findEyes(frame_right, faces);
+				BufferedImage facesImg = getBufferedImage(frame_right);
+				
+				long t = System.currentTimeMillis();
+				
+				if(faces.length>0){
+					System.out.println("Faces: "+faces.length);
+					for(Rect face: faces){
+						double xC = (-frameXC + face.width/2.0  + face.x)*xFovScale + cameraX;
+						double yC = (frameYC - face.height/2.0 - face.y)*yFovScale +cameraY;
+						double w  = face.width*xFovScale;
+						double h  = face.height*yFovScale;
+						//System.out.println("\tFace: "+(xC)+", "+(yC));
+						FaceEntry faceE = new FaceEntry(xC, yC, w, h);
+						if(faceList.contains(faceE)){
+							faceE = faceList.get(faceList.indexOf(faceE));
+							faceE.x = xC;
+							faceE.y = yC;
+							faceE.w = w;
+							faceE.h = h;
+							faceE.lastSeen = t;
+						}else{
+							faceE.firstSeen = t;
+							faceE.lastSeen = t;
+							faceList.add(faceE);
+						}
+					}
+					Collections.sort(faceList);
+				}
+	
+				double tX, tY, tD;
+				for (int i = 0; i < faceList.size(); i++) {
+					FaceEntry f = faceList.get(i);
+					if ((t - f.lastSeen) > 3000) { // remove face If not seen in last 1 seconds.
+						faceList.remove(i);
+						i--;
+					} else {
+						facesImg = getBufferedImage(drawFace(frame_right, f, i));
+						tX = f.x;
+						tY = f.y;
+						System.out.println("\tFace: " + Math.round(tX) + ", " + Math.round(tY) + ", area: " +
+						Math.round(f.w*f.h)+ ", age: "	+ (f.lastSeen - f.firstSeen));
+					}
+				}
+				System.out.println("   Left: " + faceList.size());
+	
+				if (faceList.size() > 0) {
+					tX = faceList.get(0).x;
+					tY = faceList.get(0).y;
+					tD = 0.15/Math.tan(Math.toRadians(faceList.get(0).w/2));
+				} else {
+					tX = 0;
+					tY = 0;
+					tD = 100;
+				}
+	
+				t = System.currentTimeMillis();
+				cameraX = (float) rPID.run(tX - cameraX, (t - lT) / 1000f);
+				cameraY = (float) lPID.run(tY - cameraY, (t - lT) / 1000f);
+				lT = t;
+				if (cameraX > 90)
+					cameraX = 90;
+				if (cameraX < -90)
+					cameraX = -90;
+				if (cameraY > 90)
+					cameraY = 90;
+				if (cameraY < -90)
+					cameraY = -90;
+				System.out.println("\tCam:  " + cameraX + ", " + cameraY);
+				eyesController.setFocalPoint(BinocularCameraControl.EYE_RIGHT, cameraX, cameraY, (float)tD);
+				controller.sendObject(eyesController.getMessage());
+				
 //				view.setRightImage(facesImg);
 			}
 			if(newLeftFrame) {

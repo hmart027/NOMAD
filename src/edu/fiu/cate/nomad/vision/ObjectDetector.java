@@ -20,6 +20,8 @@ public class ObjectDetector extends Thread implements VideoPacketListener{
 	private ObjectInputStream inStream;
 	private ObjectOutputStream outStream;
 	
+	//Communicates with Py4JTest.java	
+	
 	public ArrayList<ObjectDetectorListener> listeners = new ArrayList<>();
 	
 	public synchronized boolean connectToServer(String ip, int port) {
