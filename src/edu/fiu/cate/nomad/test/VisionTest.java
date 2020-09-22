@@ -1,4 +1,4 @@
-package edu.fiu.cate.nomad.vision;
+package edu.fiu.cate.nomad.test;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -32,7 +32,12 @@ import com.martindynamics.video.VideoTools;
 import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 import edu.fiu.cate.nomad.gui.binocular.StereoView;
+import edu.fiu.cate.nomad.vision.BinocularCameraControl;
+import edu.fiu.cate.nomad.vision.FrameEvent;
+import edu.fiu.cate.nomad.vision.FrameListener;
 import edu.fiu.cate.nomad.vision.NOMADVideoClient;
+import edu.fiu.cate.nomad.vision.ObjectDetector;
+import edu.fiu.cate.nomad.vision.ObjectDetectorListener;
 import image.tools.ITools;
 
 public class VisionTest extends Thread implements ObjectDetectorListener{
@@ -56,6 +61,7 @@ public class VisionTest extends Thread implements ObjectDetectorListener{
 	byte[][][] imgArray;
 	CascadeClassifier faceClass, eyeClass;
 	StereoSGBM stereoBM;
+	ObjectDetector objDetector;
 	
 	float cameraX = 0, cameraY = 0;
 	double x, y, z;
@@ -100,7 +106,7 @@ public class VisionTest extends Thread implements ObjectDetectorListener{
 
 		view = new StereoView();	
 		
-		ObjectDetector objDetector = new ObjectDetector();
+		objDetector = new ObjectDetector();
 		objDetector.connectToServer("10.102.208.104", 1586);
 		objDetector.addObjectDetectorListener(this);
 		objDetector.start();
@@ -169,6 +175,11 @@ public class VisionTest extends Thread implements ObjectDetectorListener{
 					yFovScale = psEyeVerticalFOV/(double)frameH;
 					initialized = true;
 				}
+				Rect[] faces           = findFaces(frame_right.clone());
+				MatOfRect[] eyes       = findEyes(frame_right, faces);
+				BufferedImage facesImg = getBufferedImage(frame_right);
+				long t = System.currentTimeMillis();	
+				
 				if(objRes!=null)
 					for(ImageObject obj: objRes.objects) {
 						Scalar color = colors.get(labels.indexOf(obj.label));
@@ -179,49 +190,44 @@ public class VisionTest extends Thread implements ObjectDetectorListener{
 						Imgproc.putText(frame_right, obj.label+": "+obj.score, 
 								new Point(obj.coordinates[1], obj.coordinates[2]), 5, 1.0, 
 								color);
-//						if(obj.label.equals("person")) {
+						if(obj.label.equals("person")) {
 //							double xc = ( (obj.coordinates[1]+obj.coordinates[3])/2 - frameXC)*xFovScale + cameraX;
 //							double yc = (-(obj.coordinates[0]+obj.coordinates[2])/2 + frameYC)*yFovScale + cameraY;
 //							double w  = (obj.coordinates[1]+obj.coordinates[3])/2*xFovScale;
 //							double h  = (obj.coordinates[0]+obj.coordinates[2])/2*yFovScale;
 //							double tD = 0.15/Math.tan(Math.toRadians(w/2));
 //							eyesController.setFocalPoint(BinocularCameraControl.EYE_RIGHT, cameraX, cameraY, (float)tD);
-//						}
-					}
-				
-				view.setRightImage(getBufferedImage(frame_right));
-				newRightFrame = false;
-				
-				Rect[] faces = findFaces(frame_right.clone());
-				MatOfRect[] eyes = findEyes(frame_right, faces);
-				BufferedImage facesImg = getBufferedImage(frame_right);
-				
-				long t = System.currentTimeMillis();
-				
-				if(faces.length>0){
-					System.out.println("Faces: "+faces.length);
-					for(Rect face: faces){
-						double xC = (-frameXC + face.width/2.0  + face.x)*xFovScale + cameraX;
-						double yC = (frameYC - face.height/2.0 - face.y)*yFovScale +cameraY;
-						double w  = face.width*xFovScale;
-						double h  = face.height*yFovScale;
-						//System.out.println("\tFace: "+(xC)+", "+(yC));
-						FaceEntry faceE = new FaceEntry(xC, yC, w, h);
-						if(faceList.contains(faceE)){
-							faceE = faceList.get(faceList.indexOf(faceE));
-							faceE.x = xC;
-							faceE.y = yC;
-							faceE.w = w;
-							faceE.h = h;
-							faceE.lastSeen = t;
-						}else{
-							faceE.firstSeen = t;
-							faceE.lastSeen = t;
-							faceList.add(faceE);
+							if(faces.length>0){
+								System.out.println("Faces: "+faces.length);
+								for(Rect face: faces){
+									//check if the face is outside the person object
+									if(face.x<obj.coordinates[1] || (face.x+face.width)>obj.coordinates[3] || 
+											face.y<obj.coordinates[0] || (face.y+face.height)>obj.coordinates[2]) {
+										continue;
+									}
+									double xC = (-frameXC + face.width/2.0  + face.x)*xFovScale + cameraX;
+									double yC = (frameYC - face.height/2.0 - face.y)*yFovScale +cameraY;
+									double w  = face.width*xFovScale;
+									double h  = face.height*yFovScale;
+									//System.out.println("\tFace: "+(xC)+", "+(yC));
+									FaceEntry faceE = new FaceEntry(xC, yC, w, h);
+									if(faceList.contains(faceE)){
+										faceE = faceList.get(faceList.indexOf(faceE));
+										faceE.x = xC;
+										faceE.y = yC;
+										faceE.w = w;
+										faceE.h = h;
+										faceE.lastSeen = t;
+									}else{
+										faceE.firstSeen = t;
+										faceE.lastSeen = t;
+										faceList.add(faceE);
+									}
+								}
+								Collections.sort(faceList);
+							}
 						}
-					}
-					Collections.sort(faceList);
-				}
+					}				
 	
 				double tX, tY, tD;
 				for (int i = 0; i < faceList.size(); i++) {
@@ -264,6 +270,10 @@ public class VisionTest extends Thread implements ObjectDetectorListener{
 				System.out.println("\tCam:  " + cameraX + ", " + cameraY);
 				eyesController.setFocalPoint(BinocularCameraControl.EYE_RIGHT, cameraX, cameraY, (float)tD);
 				controller.sendObject(eyesController.getMessage());
+
+				
+				view.setRightImage(getBufferedImage(frame_right));
+				newRightFrame = false;		
 				
 //				view.setRightImage(facesImg);
 			}

@@ -60,7 +60,7 @@ public class NetworkSpeechStream extends InputStream implements AudioFrameListen
 			boolean notify = (readPointer==writePointer);
 			synchronized (buffer) {
 				for(int i=0; i<m.ch.length; i+=m.frameSize) {
-					int ch = (((int)m.ch[i+0])<<8 | (m.ch[i+1] & 0x0FF) )*2;
+					int ch = (((int)m.ch[i+0])<<8 | (m.ch[i+1] & 0x0FF) );
 //					buffer[writePointer]   = m.ch[i+1];
 //					buffer[writePointer+1] = m.ch[i];
 					buffer[writePointer]   = (byte) ch;

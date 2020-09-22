@@ -16,5 +16,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/VideoStreaming"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Sphinx4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ObjectDetector"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/eegdsp"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -6,13 +6,13 @@ import java.io.OutputStream;
 import com.protocol.Protocol;
 
 import comm.serial.Comm;
-import edu.fiu.cate.nomad.audio.SoundTrials;
 import edu.fiu.cate.nomad.audio.nlp.CoreNlpTrial;
 import edu.fiu.cate.nomad.audio.nlp.TranscriberDemo;
 import edu.fiu.cate.nomad.config.NomadConfiguration;
 import edu.fiu.cate.nomad.control.NomadBase;
 import edu.fiu.cate.nomad.control.SerialComTrials;
 import edu.fiu.cate.nomad.gui.NomadGUI;
+import edu.fiu.cate.nomad.test.SoundTrials;
 import edu.fiu.cate.nomad.video.streaming.VideoServer;
 import edu.stanford.nlp.pipeline.CoreNLPProtos;
 

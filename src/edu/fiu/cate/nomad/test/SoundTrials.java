@@ -1,4 +1,4 @@
-package edu.fiu.cate.nomad.audio;
+package edu.fiu.cate.nomad.test;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
@@ -15,6 +15,7 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 import javax.swing.JPanel;
 
+import edu.fiu.cate.nomad.audio.PSEyeAudio;
 import main.Window;
 import plotter.GraphPanel;
 

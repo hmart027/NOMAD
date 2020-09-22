@@ -21,20 +21,20 @@ public class NOMADAudioClientTest {
 
 	public static void main(String[] args) {
 		
-//		Configuration configuration = new Configuration();
-//		configuration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
-//		configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
-//		configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
-//		
-//		System.out.println("Configuration Loaded.....");
-//		
-//		NetworkSpeechStream speechStream = new NetworkSpeechStream(0, 1024);
-//		NetworkLiveSpeechRecognizer recognizer = null;
-//		try {
-//			recognizer = new NetworkLiveSpeechRecognizer(configuration, speechStream);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		Configuration configuration = new Configuration();
+		configuration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
+		configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
+		configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
+		
+		System.out.println("Configuration Loaded.....");
+		
+		NetworkSpeechStream speechStream = new NetworkSpeechStream(0, 1024);
+		NetworkLiveSpeechRecognizer recognizer = null;
+		try {
+			recognizer = new NetworkLiveSpeechRecognizer(configuration, speechStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		try {
 			speaker = AudioSystem.getSourceDataLine(new AudioFormat(16000, 16, 1, true, true));
@@ -51,8 +51,8 @@ public class NOMADAudioClientTest {
 			e.printStackTrace();
 		}
 		
-		NOMADAudioClient audio = new NOMADAudioClient("192.168.0.119");
-//		audio.addAudioFrameListener(speechStream);
+		NOMADAudioClient audio = new NOMADAudioClient("192.168.1.198");
+		audio.addAudioFrameListener(speechStream);
 		audio.addAudioFrameListener(new AudioFrameListener() {
 			@Override
 			public void onFrameReceived(AudioMessage m) {
@@ -60,30 +60,32 @@ public class NOMADAudioClientTest {
 					for(int i=0; i<m.ch.length; i+=m.frameSize) {
 						speaker.write(m.ch, i, 2);
 					}
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-							speaker.drain();
-						}
-					}).start();
 				}
 			}
 		});
 		audio.start();
 		
-//		System.out.println("Started Listenning");
-//		recognizer.startRecognition();
-//		
-//		SpeechResult result = recognizer.getResult();
-//		while ((result = recognizer.getResult()) != null) {
-//			System.out.format("Hypothesis: %s\n", result.getHypothesis());
-//			if (result.getHypothesis().trim().equals("exit"))
-//				break;
-//		}
-//		// Pause recognition process. It can be resumed then with
-//		// startRecognition(false).
-//		System.out.println("Stoped Listenning");
-//		recognizer.stopRecognition();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(true)
+					speaker.drain();
+			}
+		}).start();
+		
+		System.out.println("Started Listenning");
+		recognizer.startRecognition();
+		
+		SpeechResult result = recognizer.getResult();
+		while ((result = recognizer.getResult()) != null) {
+			System.out.format("Hypothesis: %s\n", result.getHypothesis());
+			if (result.getHypothesis().trim().equals("exit"))
+				break;
+		}
+		// Pause recognition process. It can be resumed then with
+		// startRecognition(false).
+		System.out.println("Stoped Listenning");
+		recognizer.stopRecognition();
 		
 	}
 

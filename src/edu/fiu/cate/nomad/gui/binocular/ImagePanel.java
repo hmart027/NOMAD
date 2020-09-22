@@ -10,7 +10,7 @@ public class ImagePanel extends JPanel {
 
 	private static final long serialVersionUID = 7613874066609166472L;
 	private Dimension dim;
-	private BufferedImage img = null;
+	private volatile BufferedImage img = null;
 	
 	private int xOff, yOff, imgW, imgH;
 
@@ -27,7 +27,7 @@ public class ImagePanel extends JPanel {
 				setImgDims();
 				repaint();
 			}
-		}else {
+		} else {
 			this.img = img;
 			setImgDims();
 			repaint();
@@ -36,20 +36,22 @@ public class ImagePanel extends JPanel {
 	
 	private void setImgDims(){
 		if(img!=null){
-			float dAR = (float)dim.width/(float)dim.height;
-			float iAR = (float)img.getWidth()/(float)img.getHeight();
-			if(iAR>dAR){
-				imgW = dim.width;
-				imgH = (int) (dim.width/iAR);
-				xOff = 0;
-				yOff = (dim.height - imgH)/2;
-				if(yOff<0) yOff *= -1;
-			}else{
-				imgH = dim.height;
-				imgW = (int) (dim.height*iAR);
-				yOff = 0;
-				xOff = (dim.width - imgW)/2;
-				if(xOff<0) xOff *= -1;
+			synchronized (this.img) {
+				float dAR = (float)dim.width/(float)dim.height;
+				float iAR = (float)img.getWidth()/(float)img.getHeight();
+				if(iAR>dAR){
+					imgW = dim.width;
+					imgH = (int) (dim.width/iAR);
+					xOff = 0;
+					yOff = (dim.height - imgH)/2;
+					if(yOff<0) yOff *= -1;
+				}else{
+					imgH = dim.height;
+					imgW = (int) (dim.height*iAR);
+					yOff = 0;
+					xOff = (dim.width - imgW)/2;
+					if(xOff<0) xOff *= -1;
+				}
 			}
 		}
 	}
@@ -74,7 +76,7 @@ public class ImagePanel extends JPanel {
 			synchronized (this.img) {
 				Graphics imgG = img.getGraphics();
 				imgG.setColor(java.awt.Color.GREEN);
-				imgG.drawRect(img.getWidth()/2-10, img.getHeight()/2-10, 20, 20);
+				imgG.drawRect(img.getWidth() / 2 - 10, img.getHeight() / 2 - 10, 20, 20);
 				g.drawImage(img, xOff, yOff, imgW, imgH, null);
 			}
 		}
